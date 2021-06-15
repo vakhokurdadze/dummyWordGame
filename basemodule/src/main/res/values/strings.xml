@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="mathExitDialogHeader">Are you sure you want to exit the match?</string>
+    <string name="exitMatchPositiveText">Yes</string>
+    <string name="exitMatchNegativeText">No</string>
+    <string name="move">move</string>
+    <string name="playerWarning">don\'t forget to separate each word you enter using spaces</string>
+</resources>

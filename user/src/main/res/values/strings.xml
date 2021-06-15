@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DummyWordGame</string>
+    <string name="match">Match</string>
 </resources>

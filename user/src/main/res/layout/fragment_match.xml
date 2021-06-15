@@ -105,12 +105,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Enter the word sequence"
-            android:textColorHint="@color/black"
+            android:textColorHint="@color/white"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingStart="20dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/wordSequenceInputSize"
+            android:backgroundTint="#7692A8"
+            android:background="@drawable/fyi_container"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".8" />
+            app:layout_constraintWidth_percent=".84" />
 
         <Button
             android:id="@+id/play"

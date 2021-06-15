@@ -1,6 +1,8 @@
 package com.adjarabet.basemodule
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,7 @@ object SnackbarProvider {
         snackbarLayout.layoutParams = params
         snackbarLayout.addView(messageView)
 
+        snackbar.view.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val errorMessageTitle = messageView.findViewById<TextView>(R.id.messageTitle)
         val errorMessageDesc = messageView.findViewById<TextView>(R.id.messageDesc)

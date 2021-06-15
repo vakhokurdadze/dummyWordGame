@@ -28,6 +28,7 @@ class MatchFragment : BaseFragment() {
     private lateinit var userBroadcastReceiver: BotActionBroadcastReceiver
     private lateinit var viewInflater: LayoutInflater
     private lateinit var exitMatchDialog:AlertDialog
+    private lateinit var currentWordSequence:String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +38,7 @@ class MatchFragment : BaseFragment() {
 
 
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
+        currentWordSequence = ""
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -59,27 +61,61 @@ class MatchFragment : BaseFragment() {
 
 
         matchView.play.setOnClickListener {
-            Intent().also { intent ->
 
-                val wordSequenceInput = matchView.wordSequenceInput.text.toString()
 
-                if(wordSequenceInput.isEmpty()){
-                    SnackbarProvider.newSnackBar(
-                        requireContext(),
-                        resources.getString(R.string.error),
-                        resources.getString(R.string.emptyInputError),
-                        matchView.matchFragmentRoot,
-                        150
-                    ).show()
+            val wordSequenceInput = matchView.wordSequenceInput.text.toString()
+            val inputWordList = if(wordSequenceInput.isNotEmpty())
+                wordSequenceInput.split(" ")
+            else mutableListOf()
+            val currentSequenceWordList = if(currentWordSequence.isNotEmpty())
+                currentWordSequence.split(" ")
+            else mutableListOf()
 
-                    return@setOnClickListener
-                }
-                intent.action = Constants.ACTION_USER_MOVE
-                intent.putExtra(Constants.MOVE, wordSequenceInput)
-                activity?.sendBroadcast(intent)
+            val inputHasNoDuplicate = inputWordList.size == inputWordList.distinct().size
+            val isProperWordNumber = (currentSequenceWordList.size + 1) == inputWordList.size
 
-                botsTurnView()
+            if(currentWordSequence.isEmpty() &&
+                inputWordList.size == 1){
+                userMove(wordSequenceInput)
+
+                currentWordSequence = wordSequenceInput
+                return@setOnClickListener
+            }else if (currentWordSequence.isEmpty() && inputWordList.size > 1){
+                SnackbarProvider.newSnackBar(
+                    requireContext(),
+                    resources.getString(R.string.error),
+                    resources.getString(com.adjarabet.basemodule.R.string.improperWordNumber),
+                    matchView.matchFragmentRoot,
+                    150
+                ).show()
             }
+
+            if(wordSequenceInput.isNotEmpty() && inputHasNoDuplicate
+                && wordSequenceInput.contains(currentWordSequence)
+                && isProperWordNumber){
+
+                userMove(wordSequenceInput)
+                currentWordSequence = wordSequenceInput
+
+            } else if(wordSequenceInput.isEmpty()){
+                SnackbarProvider.newSnackBar(
+                    requireContext(),
+                    resources.getString(R.string.error),
+                    resources.getString(R.string.emptyInputError),
+                    matchView.matchFragmentRoot,
+                    150
+                ).show()
+
+                return@setOnClickListener
+            }else if(!wordSequenceInput.contains(currentWordSequence)){
+
+            }
+            else if(!inputHasNoDuplicate){
+
+            }else{
+
+            }
+
         }
 
         return matchView
@@ -131,6 +167,16 @@ class MatchFragment : BaseFragment() {
 
     }
 
+    private fun userMove(wordSequenceInput:String){
+        Intent().also { intent ->
+            intent.action = Constants.ACTION_USER_MOVE
+            intent.putExtra(Constants.MOVE, wordSequenceInput)
+            activity?.sendBroadcast(intent)
+
+            botsTurnView()
+        }
+    }
+
     inner class BotActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -138,7 +184,11 @@ class MatchFragment : BaseFragment() {
 
             val currentWordSequence = intent?.getStringExtra(Constants.MOVE) ?: ""
 
-            val words = currentWordSequence.split(" ")
+            this@MatchFragment.currentWordSequence = currentWordSequence
+
+            val words = if(currentWordSequence.isNotEmpty())
+                currentWordSequence.split(" ")
+            else mutableListOf()
 
             words.forEachIndexed { index, s ->
                 showCustomToast(index + 1,s)

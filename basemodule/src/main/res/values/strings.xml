@@ -9,4 +9,5 @@
     <string name="closeMessage">close</string>
     <string name="error">Error</string>
     <string name="emptyInputError">please enter the sequence of words</string>
+    <string name="improperWordNumber">you have to enter only one additional word</string>
 </resources>

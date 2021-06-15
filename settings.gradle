@@ -1,0 +1,4 @@
+rootProject.name = "DummyWordGame"
+include ':user'
+include ':bot'
+include ':basemodule'

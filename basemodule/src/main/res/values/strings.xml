@@ -6,4 +6,7 @@
     <string name="exitMatchNegativeText">No</string>
     <string name="move">move</string>
     <string name="playerWarning">don\'t forget to separate each word you enter using spaces</string>
+    <string name="closeMessage">close</string>
+    <string name="error">Error</string>
+    <string name="emptyInputError">please enter the sequence of words</string>
 </resources>

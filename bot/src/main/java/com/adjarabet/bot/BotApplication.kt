@@ -37,8 +37,13 @@ class BotApplication : Application() {
             }else{
                 val inputWord = intent?.getStringExtra(Constants.MOVE)
                 if (::botService.isInitialized && inputWord != null) {
-                    val userWordSequence = botService.userMover(inputWord)
-                    botMoveIntent(context, userWordSequence)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(500)
+                        withContext(Dispatchers.Main){
+                            val userWordSequence = botService.userMover(inputWord)
+                            botMoveIntent(context, userWordSequence)
+                        }
+                    }
                 }
             }
         }

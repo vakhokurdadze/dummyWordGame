@@ -4,5 +4,8 @@
     <color name="colorPrimaryDark">#FF3700B3</color>
     <color name="colorPrimary">#FF6200EE</color>
     <color name="colorAccent">#FFBB86FC</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dividerColor">#D8D8D8</color>
 
 </resources>

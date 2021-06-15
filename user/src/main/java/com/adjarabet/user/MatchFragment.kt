@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.adjarabet.basemodule.Constants
+import com.adjarabet.basemodule.SnackbarProvider
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
 import kotlinx.coroutines.*
@@ -41,15 +42,11 @@ class MatchFragment : BaseFragment() {
 
         val toolbar: Toolbar = matchView.matchToolBar
 
-        toolbar.title = resources.getString(R.string.match)
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(true)
-
-        toolbar.setTitleTextColor(resources.getColor(R.color.white))
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = resources.getString(R.string.match)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
+
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }
@@ -63,9 +60,25 @@ class MatchFragment : BaseFragment() {
 
         matchView.play.setOnClickListener {
             Intent().also { intent ->
+
+                val wordSequenceInput = matchView.wordSequenceInput.text.toString()
+
+                if(wordSequenceInput.isEmpty()){
+                    SnackbarProvider.newSnackBar(
+                        requireContext(),
+                        resources.getString(R.string.error),
+                        resources.getString(R.string.emptyInputError),
+                        matchView.matchFragmentRoot,
+                        150
+                    ).show()
+
+                    return@setOnClickListener
+                }
                 intent.action = Constants.ACTION_USER_MOVE
-                intent.putExtra(Constants.MOVE, matchView.wordInput.text.toString())
+                intent.putExtra(Constants.MOVE, wordSequenceInput)
                 activity?.sendBroadcast(intent)
+
+                botsTurnView()
             }
         }
 
@@ -102,6 +115,7 @@ class MatchFragment : BaseFragment() {
         }
         exitMatch.setOnClickListener {
             exitMatchDialog.dismiss()
+            endBotService()
             parentFragmentManager.popBackStack()
         }
 
@@ -109,6 +123,7 @@ class MatchFragment : BaseFragment() {
 
         exitMatchDialog.setOnKeyListener { v, keyCode, event ->
             if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
+                endBotService()
                 parentFragmentManager.popBackStack()
             }
             return@setOnKeyListener false
@@ -118,6 +133,8 @@ class MatchFragment : BaseFragment() {
 
     inner class BotActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+
+            userTurnView()
 
             val currentWordSequence = intent?.getStringExtra(Constants.MOVE) ?: ""
 
@@ -142,10 +159,31 @@ class MatchFragment : BaseFragment() {
         }
     }
 
+    private fun botsTurnView(){
+
+        matchView.botThinkingLoader.visibility = View.VISIBLE
+        matchView.botTurnIndicator.visibility = View.VISIBLE
+        matchView.userTurnIndicator.visibility = View.INVISIBLE
+        matchView.wordSequenceInput.text?.clear()
+    }
+    private fun userTurnView(){
+        matchView.botThinkingLoader.visibility = View.INVISIBLE
+        matchView.botTurnIndicator.visibility = View.INVISIBLE
+        matchView.userTurnIndicator.visibility = View.VISIBLE
+    }
+
+    private fun endBotService(){
+        Intent().also { intent ->
+            intent.action = Constants.ACTION_STOP_BOT_SERVICE
+            activity?.sendBroadcast(intent)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         activity?.unregisterReceiver(userBroadcastReceiver)
     }
+
 
     override fun onPause() {
         super.onPause()

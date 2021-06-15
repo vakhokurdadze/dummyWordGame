@@ -1,158 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:id="@+id/matchFragmentRoot">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/matchToolBar"
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        app:theme="@style/ToolBarStyle"
-        android:background="@color/colorPrimary"
-        app:layout_constraintHeight_percent=".08"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintVertical_bias=".03"
-        app:layout_constraintLeft_toLeftOf="@id/matchInfoRecycler"
-        android:id="@+id/user"
-        app:layout_constraintTop_toBottomOf="@id/matchToolBar"
-        app:layout_constraintBottom_toTopOf="@id/matchInfoRecycler"
-        android:padding="5dp"
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:text="You"/>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/matchToolBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            app:layout_constraintHeight_percent=".08"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:theme="@style/ToolBarStyle"
+            app:title="@string/match" />
 
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:rotation="180"
-        android:src="@drawable/ic_turn_indicator"
-        app:layout_constraintLeft_toRightOf="@id/user"
-        app:layout_constraintTop_toTopOf="@id/user"
-        app:layout_constraintBottom_toBottomOf="@id/user"
-        />
-
-
-    <com.agrawalsuneet.dotsloader.loaders.LinearDotsLoader
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@id/bot"
-        app:layout_constraintRight_toRightOf="@id/bot"
-        app:layout_constraintBottom_toTopOf="@id/bot"
-        app:loader_animDur="400"
-        app:loader_noOfDots="3"
-        app:loader_circleRadius="6dp"
-        app:loader_selectedColor="@color/purple_200"
-        app:loader_dotsDist="3dp"
-        app:loader_expandOnSelect="false"
-        app:loader_isSingleDir="false"
-        app:loader_selectedRadius="10dp"
-        app:loader_showRunningShadow="true"
-        android:visibility="invisible"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="@id/matchInfoRecycler"
-        app:layout_constraintBottom_toTopOf="@id/matchInfoRecycler"
-        android:padding="5dp"
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:id="@+id/bot"
-        android:text="Bot"/>
-
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:visibility="invisible"
-        android:src="@drawable/ic_turn_indicator"
-        app:layout_constraintRight_toLeftOf="@id/bot"
-        app:layout_constraintTop_toTopOf="@id/user"
-        app:layout_constraintBottom_toBottomOf="@id/user"
-        />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="0dp"
-        app:layout_constraintWidth_percent=".9"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:id="@+id/matchInfoRecycler"
-        app:layout_constraintTop_toBottomOf="@id/user"
-        app:layout_constraintVertical_bias=".15"
-        android:layout_height="wrap_content"/>
-
-
-    <androidx.appcompat.widget.AppCompatEditText
-        android:layout_width="0dp"
-        app:layout_constraintWidth_percent=".8"
-        android:layout_height="wrap_content"
-        android:id="@+id/wordInput"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:hint="Enter the word sequence"
-        android:textColorHint="@color/black"
-        />
-
-    <Button
-        android:background="@drawable/fyi_container"
-        android:text="@string/move"
-        android:id="@+id/play"
-        android:textColor="@color/white"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintVertical_bias=".7"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/wordInput"
-        />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:background="@drawable/fyi_container"
-        app:layout_constraintWidth_percent=".7"
-        app:layout_constraintTop_toBottomOf="@id/wordInput"
-        app:layout_constraintBottom_toTopOf="@id/play"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        >
-
-        <ImageView
-            android:id="@+id/keepInMindIcon"
+        <TextView
+            android:id="@+id/user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            android:padding="5dp"
+            android:text="You"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/matchInfoRecycler"
+            app:layout_constraintTop_toBottomOf="@id/matchToolBar"
+            app:layout_constraintVertical_bias=".032" />
+
+        <ImageView
+            android:id="@+id/userTurnIndicator"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:rotation="180"
+            android:src="@drawable/ic_turn_indicator"
+            app:layout_constraintBottom_toBottomOf="@id/user"
+            app:layout_constraintLeft_toRightOf="@id/user"
+            app:layout_constraintTop_toTopOf="@id/user" />
+
+
+        <com.agrawalsuneet.dotsloader.loaders.LinearDotsLoader
+            android:id="@+id/botThinkingLoader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/bot"
+            app:layout_constraintLeft_toLeftOf="@id/bot"
+            app:layout_constraintRight_toRightOf="@id/bot"
+            app:loader_animDur="500"
+            app:loader_circleRadius="4dp"
+            app:loader_dotsDist="3dp"
+            app:loader_expandOnSelect="false"
+            app:loader_isSingleDir="false"
+            app:loader_noOfDots="3"
+            app:loader_selectedColor="@color/purple_200"
+            app:loader_selectedRadius="10dp"
+            app:loader_showRunningShadow="true" />
+
+        <TextView
+            android:id="@+id/bot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Bot"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/matchInfoRecycler"
+            app:layout_constraintRight_toRightOf="@id/matchInfoRecycler" />
+
+        <ImageView
+            android:id="@+id/botTurnIndicator"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_turn_indicator"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/user"
+            app:layout_constraintRight_toLeftOf="@id/bot"
+            app:layout_constraintTop_toTopOf="@id/user" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/matchInfoRecycler"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user"
+            app:layout_constraintVertical_bias=".2"
+            app:layout_constraintWidth_percent=".9" />
+
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/wordSequenceInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Enter the word sequence"
+            android:textColorHint="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintHorizontal_bias=".05"
-            android:background="@drawable/ic_keepinmind"/>
-
-        <TextView
-            android:layout_width="0dp"
-            app:layout_constraintWidth_percent=".8"
-            android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/keepInMindIcon"
+            app:layout_constraintWidth_percent=".8" />
+
+        <Button
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fyi_container"
+            android:text="@string/move"
             android:textColor="@color/white"
-            android:paddingStart="12dp"
-            android:text="@string/playerWarning"
-            />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/wordSequenceInput"
+            app:layout_constraintVertical_bias=".7" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:background="@drawable/fyi_container"
+            app:layout_constraintBottom_toTopOf="@id/play"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/wordSequenceInput"
+            app:layout_constraintWidth_percent=".7">
+
+            <ImageView
+                android:id="@+id/keepInMindIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_keepinmind"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias=".05"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:text="@string/playerWarning"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/keepInMindIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent=".8" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

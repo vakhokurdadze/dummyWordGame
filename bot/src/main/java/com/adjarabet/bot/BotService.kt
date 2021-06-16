@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.adjarabet.basemodule.Constants
 import kotlin.random.Random
 
 class BotService : Service() {
@@ -15,8 +16,17 @@ class BotService : Service() {
     }
 
     fun userMover(move : String) : String{
-        val randomInt:Int = (1..5).random()
-        return "$move ${generateRandomWord(randomInt)}"
+
+        val randomWordLengthRange:Int = (1..5).random()
+        val randomNumberInRange = (1..100).random()
+
+        val userMoveWordCount = if(move.isNotEmpty()) move.split(" ").size else 0
+
+        val userMove = if(randomNumberInRange <=3 || userMoveWordCount > 100)
+            Constants.TOO_MUCH_FOR_ME
+        else "$move ${generateRandomWord(randomWordLengthRange)}"
+
+        return userMove
     }
 
     fun generateRandomWord(length: Int) : String {

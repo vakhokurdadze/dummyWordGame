@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/matchFragmentRoot">
 
 
@@ -96,6 +97,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/user"
+            tools:listitem="@layout/player_move_item"
+            tools:itemCount="3"
             app:layout_constraintVertical_bias=".2"
             app:layout_constraintWidth_percent=".9" />
 

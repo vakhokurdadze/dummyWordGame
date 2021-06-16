@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:id="@+id/yesNoRoot"
+    android:background="@drawable/button_shape_ripple"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/userWon"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:gravity="center"
+        android:maxWidth="340dp"
+        android:id="@+id/matchResultHeader"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias=".05"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/matchResultHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="@dimen/matchResultDescriptionSize"
+        android:gravity="left"
+        android:paddingLeft="5dp"
+        android:id="@+id/matchResultDescription"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintWidth_percent=".8"
+        app:layout_constraintVertical_bias=".5"
+        app:layout_constraintBottom_toTopOf="@id/buttonContainer"
+
+        />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="330dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:id="@+id/buttonContainer"
+        android:background="@drawable/fyi_container"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/matchResultHeader"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.9"
+        >
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintHorizontal_bias=".07"
+            android:layout_width="146dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/dialogButtonColor"
+            android:background="@drawable/button_shape_ripple"
+            android:id="@+id/menu"
+            android:text="@string/menu"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+
+        <TextView
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="146dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/dialogButtonColor"
+            android:background="@drawable/button_shape_ripple"
+            android:text="@string/newgame"
+            android:id="@+id/newGame"
+            app:layout_constraintHorizontal_bias=".93"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:gravity="center"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

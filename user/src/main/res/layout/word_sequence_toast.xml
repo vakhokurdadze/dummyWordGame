@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="1.  word"
             android:gravity="center"
-            android:padding="30dp"
+            android:padding="20dp"
             android:textSize="20sp"
             android:backgroundTint="@color/purple_200"
             android:textColor="@color/white"

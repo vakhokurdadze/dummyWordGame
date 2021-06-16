@@ -2,4 +2,5 @@
 <resources>
 
     <dimen name="wordSequenceInputSize">15sp</dimen>
+    <dimen name="matchResultDescriptionSize">15sp</dimen>
 </resources>

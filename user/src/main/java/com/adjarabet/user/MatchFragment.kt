@@ -13,9 +13,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.GridLayoutManager
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import kotlinx.android.synthetic.main.fragment_match.view.*
+import kotlinx.android.synthetic.main.match_result_dialog.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
 import kotlinx.coroutines.*
 import ru.terrakok.cicerone.Router
@@ -28,6 +30,7 @@ class MatchFragment : BaseFragment() {
     private lateinit var userBroadcastReceiver: BotActionBroadcastReceiver
     private lateinit var viewInflater: LayoutInflater
     private lateinit var exitMatchDialog:AlertDialog
+    private lateinit var matchResultDialog:AlertDialog
     private lateinit var currentWordSequence:String
 
     override fun onCreateView(
@@ -59,6 +62,20 @@ class MatchFragment : BaseFragment() {
 
         router = (activity?.application as WordGameApplication).cicerone.router
 
+        updateMoveRecycler(Player.USER,"")
+        val adapter = matchView.matchInfoRecycler.adapter as MoveRecyclerAdapter
+        val layoutManager = GridLayoutManager(context, 2)
+
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                val type = adapter.getItemViewType(position)
+                return if (type == MoveRecyclerAdapter.HEADER_VIEW
+                ) 2 else 1
+            }
+
+        }
+
+        matchView.matchInfoRecycler.layoutManager = layoutManager
 
         matchView.play.setOnClickListener {
 
@@ -77,6 +94,7 @@ class MatchFragment : BaseFragment() {
             if(currentWordSequence.isEmpty() &&
                 inputWordList.size == 1){
                 userMove(wordSequenceInput)
+                updateMoveRecycler(Player.USER,inputWordList.last())
 
                 currentWordSequence = wordSequenceInput
                 return@setOnClickListener
@@ -91,10 +109,11 @@ class MatchFragment : BaseFragment() {
             }
 
             if(wordSequenceInput.isNotEmpty() && inputHasNoDuplicate
-                && wordSequenceInput.contains(currentWordSequence)
+                && inputWordList.containsAll(currentSequenceWordList)
                 && isProperWordNumber){
 
                 userMove(wordSequenceInput)
+                updateMoveRecycler(Player.USER,inputWordList.last())
                 currentWordSequence = wordSequenceInput
 
             } else if(wordSequenceInput.isEmpty()){
@@ -107,22 +126,42 @@ class MatchFragment : BaseFragment() {
                 ).show()
 
                 return@setOnClickListener
-            }else if(!wordSequenceInput.contains(currentWordSequence)){
+            } else if(!inputHasNoDuplicate){
 
+                val matchResult = MatchResult.UserLost(
+                    currentWordSequence,wordSequenceInput,LostReason.DUPLICATE_WORD
+                )
+                matchResultDialogInit(matchResult)
+                matchResultDialog.show()
+            } else if(!isProperWordNumber){
+                val matchResult = MatchResult.UserLost(
+                    currentWordSequence,wordSequenceInput,LostReason.IMPROPER_WORD_NUMBER
+                )
+                matchResultDialogInit(matchResult)
+                matchResultDialog.show()
+
+            } else{
+                val matchResult = MatchResult.UserLost(
+                    currentWordSequence,wordSequenceInput,LostReason.NO_MATCHING
+                )
+                matchResultDialogInit(matchResult)
+                matchResultDialog.show()
             }
-            else if(!inputHasNoDuplicate){
-
-            }else{
-
-            }
-
         }
 
         return matchView
     }
 
+    private fun updateMoveRecycler(lastMoveBy:Player,lastmove:String){
+
+        val adapter = MoveRecyclerAdapter(lastMoveBy,lastmove)
+
+        matchView.matchInfoRecycler.adapter = adapter
+
+    }
+
     override fun onBackPressed() {
-        quitTestDriveDialogInit()
+        exitMatchDialogInit()
         if(::exitMatchDialog.isInitialized){
             if(!exitMatchDialog.isShowing){
                 exitMatchDialog.show()
@@ -132,7 +171,7 @@ class MatchFragment : BaseFragment() {
         }
     }
 
-    private fun quitTestDriveDialogInit(){
+    private fun exitMatchDialogInit(){
 
         val exitMatchDialogView = viewInflater.inflate(
            R.layout.match_exit_dialog,
@@ -166,6 +205,70 @@ class MatchFragment : BaseFragment() {
         }
 
     }
+    private fun matchHasEnded(){
+        endBotService()
+        userTurnView()
+        this.currentWordSequence = ""
+    }
+
+    private fun matchResultDialogInit(matchResult: MatchResult){
+
+        matchHasEnded()
+        val matchResultDialogView = viewInflater.inflate(
+            R.layout.match_result_dialog,
+            null)
+
+        val dialogBuilder = AlertDialog.Builder(context).setView(matchResultDialogView)
+
+        this.matchResultDialog = dialogBuilder.create()
+
+        val menu = matchResultDialogView.findViewById<TextView>(R.id.menu)
+        val newGame = matchResultDialogView.findViewById<TextView>(R.id.newGame)
+
+        if(matchResult is MatchResult.UserLost){
+            matchResultDialogView.matchResultHeader.text = resources.getString(com.adjarabet.basemodule.R.string.botWon)
+
+          matchResultDialogView.matchResultDescription.text =  when(matchResult.reason){
+                LostReason.IMPROPER_WORD_NUMBER ->{
+                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
+                }
+                LostReason.NO_MATCHING -> {
+                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
+
+                }
+                else ->{
+                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.duplicate_words)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
+                }
+            }
+        }else{
+            matchResultDialogView.matchResultDescription.text = "${resources.getString(R.string.too_much_for_bot)}"
+            matchResultDialogView.matchResultHeader.text = resources.getString(com.adjarabet.basemodule.R.string.userWon)
+        }
+        matchResultDialog.setCanceledOnTouchOutside(false)
+
+
+        newGame.setOnClickListener {
+            matchResultDialog.dismiss()
+            matchView.wordSequenceInput.text?.clear()
+            updateMoveRecycler(Player.USER,"")
+            startBotService()
+        }
+        menu.setOnClickListener {
+            matchResultDialog.dismiss()
+            parentFragmentManager.popBackStack()
+        }
+
+        matchResultDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        matchResultDialog.setOnKeyListener { v, keyCode, event ->
+            if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
+                endBotService()
+                parentFragmentManager.popBackStack()
+            }
+            return@setOnKeyListener false
+        }
+
+    }
 
     private fun userMove(wordSequenceInput:String){
         Intent().also { intent ->
@@ -184,14 +287,23 @@ class MatchFragment : BaseFragment() {
 
             val currentWordSequence = intent?.getStringExtra(Constants.MOVE) ?: ""
 
+
             this@MatchFragment.currentWordSequence = currentWordSequence
 
-            val words = if(currentWordSequence.isNotEmpty())
-                currentWordSequence.split(" ")
-            else mutableListOf()
+            if(currentWordSequence == Constants.TOO_MUCH_FOR_ME){
+                val matchResult = MatchResult.UserWon
+                matchResultDialogInit(matchResult)
+                matchResultDialog.show()
+            }else{
+                val words = if(currentWordSequence.isNotEmpty())
+                    currentWordSequence.split(" ")
+                else mutableListOf()
 
-            words.forEachIndexed { index, s ->
-                showCustomToast(index + 1,s)
+                words.forEachIndexed { index, s ->
+                    showCustomToast(index + 1,s)
+                    if(index == words.size - 1)
+                        updateMoveRecycler(Player.BOT,words.last())
+                }
             }
         }
 
@@ -200,7 +312,7 @@ class MatchFragment : BaseFragment() {
             if(::viewInflater.isInitialized && context != null){
                 val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast,null)
                 val toast = Toast(context)
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, -300)
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, -580)
                 toast.duration = Toast.LENGTH_SHORT
                 toast.view = customWordSequenceToast
                 toast.show()
@@ -225,6 +337,12 @@ class MatchFragment : BaseFragment() {
     private fun endBotService(){
         Intent().also { intent ->
             intent.action = Constants.ACTION_STOP_BOT_SERVICE
+            activity?.sendBroadcast(intent)
+        }
+    }
+    private fun startBotService(){
+        Intent().also { intent ->
+            intent.action = Constants.ACTION_START_BOT_SERVICE
             activity?.sendBroadcast(intent)
         }
     }

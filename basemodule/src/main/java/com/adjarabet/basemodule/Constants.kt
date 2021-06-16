@@ -7,4 +7,5 @@ object Constants {
     const val ACTION_USER_MOVE = "com.adjarabet.user.move"
     const val ACTION_BOT_MOVE = "com.adjarabet.bot.move"
     const val MOVE = "move"
+    const val TOO_MUCH_FOR_ME = "bot_has_crashed"
 }

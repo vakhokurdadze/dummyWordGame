@@ -1,34 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:id="@+id/welcomeFragmentRoot"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/welcomeHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dummy Word Game"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".1" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/welcomeHeader"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".1"
-        android:text="Dummy Word Game"
-        android:textSize="25sp"
-        />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/whoStarts"
+            android:text="@string/whoStarts"
+            android:padding="20dp"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/whoStartsRadioButtonGroup"
+            app:layout_constraintLeft_toLeftOf="@id/whoStartsRadioButtonGroup"
+            app:layout_constraintRight_toRightOf="@id/whoStartsRadioButtonGroup"
+            android:textColor="@color/colorPrimary"
 
-    <Button
-        android:background="@null"
-        android:text="start"
-        android:id="@+id/start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintVertical_bias=".92"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcomeHeader"
-        />
+            />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <RadioGroup
+            android:id="@+id/whoStartsRadioButtonGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/welcomeHeader"
+            app:layout_constraintVertical_bias=".6">
+
+            <RadioButton
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/youStartRadioButton"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginRight="15dp"
+                android:button="@null"
+                android:background="@drawable/you_start_selector"
+                android:gravity="bottom|center"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
+
+
+
+            <RadioButton
+                app:layout_constraintLeft_toRightOf="@id/youStartRadioButton"
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/botStartsRadioButton"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:button="@null"
+                android:background="@drawable/bot_starts_selector"
+
+                />
+
+
+
+
+        </RadioGroup>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/whoStartsRadioButtonGroup"
+            app:layout_constraintLeft_toLeftOf="@id/whoStartsRadioButtonGroup"
+            app:layout_constraintRight_toRightOf="@id/whoStartsRadioButtonGroup">
+
+
+
+            <TextView
+
+                android:paddingTop="10dp"
+                android:layout_width="0dp"
+                app:layout_constraintWidth_percent=".5"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/youStart"
+                android:textColor="@color/colorPrimary"
+                android:textSize="17sp"
+                android:paddingRight="15dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+
+            <TextView
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_width="0dp"
+                app:layout_constraintWidth_percent=".5"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/botStarts"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:paddingLeft="15dp"
+                android:textSize="17sp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <Button
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start"
+            android:textColor="@color/white"
+            android:background="@drawable/fyi_container"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/welcomeHeader"
+            app:layout_constraintVertical_bias=".92" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

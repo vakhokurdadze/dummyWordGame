@@ -6,5 +6,10 @@
     <string name="improper_word_count">Improper word amount</string>
     <string name="lostReason">Lost Reason:</string>
     <string name="too_much_for_bot">You are too strong, bot blow itself up</string>
+    <string name="botStarts">Bot</string>
+    <string name="youStart">You</string>
+    <string name="whoStarts">Who Starts</string>
+    <string name="whoStartsNotSelectedErrorHeader">Who starts not selected!</string>
+    <string name="whoStartsNotSelectedErrorDesc">Please indicate who starts the match</string>
 
 </resources>

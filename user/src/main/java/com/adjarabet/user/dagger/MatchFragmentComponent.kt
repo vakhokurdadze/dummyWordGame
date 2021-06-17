@@ -4,7 +4,7 @@ import com.adjarabet.user.presentation.fragment.MatchFragment
 import dagger.Component
 
 @Component(
-    modules = [MatchModule::class,RouterModule::class]
+    modules = [BotServiceProviderModule::class,RouterModule::class]
 )
 interface MatchFragmentComponent {
 

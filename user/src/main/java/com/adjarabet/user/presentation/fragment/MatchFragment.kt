@@ -23,7 +23,7 @@ import com.adjarabet.user.model.MatchResult
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
 import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
-import com.adjarabet.user.presentation.viewmodel.MatchViewModel
+import com.adjarabet.user.presentation.viewmodel.match.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.match_result_dialog.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*

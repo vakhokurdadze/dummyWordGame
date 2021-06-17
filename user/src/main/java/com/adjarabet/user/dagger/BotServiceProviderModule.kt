@@ -6,7 +6,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class MatchModule {
+class BotServiceProviderModule {
 
     @Provides
     fun provideBotDataSourceImpl():BotServiceDataSource {

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.user.R
 import com.adjarabet.user.WordGameApplication
+import com.adjarabet.user.dagger.DaggerMainActivityComponent
 import com.adjarabet.user.presentation.fragment.BaseFragment
 import com.adjarabet.user.presentation.fragment.MatchFragment
 import com.adjarabet.user.presentation.fragment.WelcomeFragment
@@ -17,17 +18,19 @@ import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.commands.Back
 import ru.terrakok.cicerone.commands.Command
 import ru.terrakok.cicerone.commands.Forward
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
 
-    private lateinit var router : Router
+    @Inject
+    lateinit var router : Router
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        router = (application as WordGameApplication).cicerone.router
+        DaggerMainActivityComponent.factory().create().inject(this)
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.baseFragmentContainer)
 

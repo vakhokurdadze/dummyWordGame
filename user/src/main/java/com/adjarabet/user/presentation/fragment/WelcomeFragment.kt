@@ -13,24 +13,34 @@ import com.adjarabet.user.presentation.router.MatchScreen
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.R
 import com.adjarabet.user.WordGameApplication
+import com.adjarabet.user.dagger.DaggerWelcomeFragmentComponent
+import com.adjarabet.user.presentation.viewmodel.welcome.WelcomeViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.fragment_welcome.view.*
 import ru.terrakok.cicerone.Router
+import javax.inject.Inject
 
 class WelcomeFragment : Fragment(){
 
 
     private lateinit var welcomeView: View
-    private lateinit var router : Router
+
+    @Inject
+    lateinit var router : Router
+
+    @Inject
+    lateinit var welcomeViewModel: WelcomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         welcomeView = inflater.inflate(R.layout.fragment_welcome,container,false)
 
-        router = (activity?.application as WordGameApplication).cicerone.router
+
+        DaggerWelcomeFragmentComponent.factory().create().inject(this)
+
 
         welcomeView.start.setOnClickListener {
 
@@ -52,10 +62,11 @@ class WelcomeFragment : Fragment(){
                 val whoStarts = if(whoStartsSelected.id == R.id.botStartsRadioButton)
                     Player.BOT.name else Player.USER.name
 
-                Intent().also { intent ->
-                    intent.action = Constants.ACTION_START_BOT_SERVICE
-                    activity?.sendBroadcast(intent)
-                }
+                val startBotServiceIntent =
+                    welcomeViewModel.interactors.startBotServiceIntent()
+
+                activity?.sendBroadcast(startBotServiceIntent)
+
                 router.navigateTo(MatchScreen(whoStarts))
             }
 

@@ -10,7 +10,7 @@
         android:name=".WordGameApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.DummyWordGame">
-        <activity android:name=".MainActivity"
+        <activity android:name=".presentation.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>

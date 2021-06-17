@@ -1,9 +1,11 @@
-package com.adjarabet.user
+package com.adjarabet.user.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.adjarabet.basemodule.Constants
+import com.adjarabet.user.R
+import com.adjarabet.user.WordGameApplication
 import com.adjarabet.user.presentation.fragment.BaseFragment
 import com.adjarabet.user.presentation.fragment.MatchFragment
 import com.adjarabet.user.presentation.fragment.WelcomeFragment

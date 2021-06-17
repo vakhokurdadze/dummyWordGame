@@ -1,4 +1,4 @@
-package com.adjarabet.user.presentation.dagger
+package com.adjarabet.user.dagger
 
 import com.adjarabet.user.presentation.fragment.MatchFragment
 import dagger.Component

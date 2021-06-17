@@ -1,8 +1,6 @@
-package com.adjarabet.user.presentation.dagger
+package com.adjarabet.user.dagger
 
-import com.adjarabet.basemodule.data.datasource.BotServiceDataSource
 import com.adjarabet.user.WordGameApplication
-import com.adjarabet.user.framework.BotServiceDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import ru.terrakok.cicerone.Router

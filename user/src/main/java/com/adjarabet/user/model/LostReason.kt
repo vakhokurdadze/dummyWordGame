@@ -1,4 +1,4 @@
-package com.adjarabet.user
+package com.adjarabet.user.model
 
 enum class LostReason {
    DUPLICATE_WORD,

@@ -1,4 +1,4 @@
-package com.adjarabet.user
+package com.adjarabet.user.model
 
 import android.os.Parcelable
 

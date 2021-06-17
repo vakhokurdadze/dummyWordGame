@@ -1,4 +1,4 @@
-package com.adjarabet.user
+package com.adjarabet.user.presentation.fragment
 
 import androidx.fragment.app.Fragment
 

@@ -1,12 +1,14 @@
-package com.adjarabet.user
+package com.adjarabet.user.presentation
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.adjarabet.user.R
+import com.adjarabet.user.model.Player
 import kotlinx.android.synthetic.main.player_move_item.view.*
 
-class MoveRecyclerAdapter(val lastMoveBy :Player, val lastMove:String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MoveRecyclerAdapter(val lastMoveBy : Player, val lastMove:String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         const val HEADER_VIEW = 0

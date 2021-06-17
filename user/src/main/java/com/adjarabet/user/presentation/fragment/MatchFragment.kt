@@ -1,4 +1,4 @@
-package com.adjarabet.user
+package com.adjarabet.user.presentation.fragment
 
 import android.app.AlertDialog
 import android.content.BroadcastReceiver
@@ -13,12 +13,23 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
+import com.adjarabet.basemodule.data.repo.BotServiceRepository
+import com.adjarabet.basemodule.interactors.EndBotServiceIntent
+import com.adjarabet.basemodule.interactors.StartBotServiceIntent
+import com.adjarabet.user.*
+import com.adjarabet.user.framework.BotServiceDataSourceImpl
+import com.adjarabet.user.framework.Interactors
+import com.adjarabet.user.model.LastMove
+import com.adjarabet.user.model.LostReason
+import com.adjarabet.user.model.MatchResult
+import com.adjarabet.user.model.Player
+import com.adjarabet.user.presentation.MoveRecyclerAdapter
+import com.adjarabet.user.presentation.viewmodel.MatchViewModel
+import com.adjarabet.user.presentation.viewmodel.MatchViewModelFactory
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.match_result_dialog.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
@@ -47,7 +58,13 @@ class MatchFragment : BaseFragment() {
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
         currentWordSequence = ""
 
-        matchViewModel = ViewModelProviders.of(this).get(MatchViewModel::class.java)
+        val botServiceRepository = BotServiceRepository(BotServiceDataSourceImpl())
+        val interactors = Interactors(
+            StartBotServiceIntent(botServiceRepository),
+            EndBotServiceIntent(botServiceRepository)
+        )
+        matchViewModel = ViewModelProviders.of(this, MatchViewModelFactory(interactors)).get(
+            MatchViewModel::class.java)
 
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -147,20 +164,20 @@ class MatchFragment : BaseFragment() {
             } else if(!inputHasNoDuplicate){
 
                 val matchResult = MatchResult.UserLost(
-                    currentWordSequence,wordSequenceInput,LostReason.DUPLICATE_WORD
+                    currentWordSequence, wordSequenceInput, LostReason.DUPLICATE_WORD
                 )
                 matchResultDialogInit(matchResult)
                 matchResultDialog.show()
             } else if(!isProperWordNumber){
                 val matchResult = MatchResult.UserLost(
-                    currentWordSequence,wordSequenceInput,LostReason.IMPROPER_WORD_NUMBER
+                    currentWordSequence, wordSequenceInput, LostReason.IMPROPER_WORD_NUMBER
                 )
                 matchResultDialogInit(matchResult)
                 matchResultDialog.show()
 
             } else{
                 val matchResult = MatchResult.UserLost(
-                    currentWordSequence,wordSequenceInput,LostReason.NO_MATCHING
+                    currentWordSequence, wordSequenceInput, LostReason.NO_MATCHING
                 )
                 matchResultDialogInit(matchResult)
                 matchResultDialog.show()
@@ -199,7 +216,7 @@ class MatchFragment : BaseFragment() {
     private fun exitMatchDialogInit(){
 
         val exitMatchDialogView = viewInflater.inflate(
-           R.layout.match_exit_dialog,
+            R.layout.match_exit_dialog,
             null)
 
         val dialogBuilder = AlertDialog.Builder(context).setView(exitMatchDialogView)
@@ -328,7 +345,7 @@ class MatchFragment : BaseFragment() {
                 words.forEachIndexed { index, s ->
                     showCustomToast(index + 1,s)
                     if(index == words.size - 1)
-                        matchViewModel.lastMove.value =LastMove(Player.BOT,words.last())
+                        matchViewModel.lastMove.value = LastMove(Player.BOT,words.last())
                 }
             }
         }
@@ -363,16 +380,12 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun endBotService(){
-        Intent().also { intent ->
-            intent.action = Constants.ACTION_STOP_BOT_SERVICE
-            activity?.sendBroadcast(intent)
-        }
+        val endBotServiceIntent = matchViewModel.interactors.endBotServiceIntent()
+        activity?.sendBroadcast(endBotServiceIntent)
     }
     private fun startBotService(){
-        Intent().also { intent ->
-            intent.action = Constants.ACTION_START_BOT_SERVICE
-            activity?.sendBroadcast(intent)
-        }
+        val startBotServiceIntent = matchViewModel.interactors.startBotServiceIntent()
+        activity?.sendBroadcast(startBotServiceIntent)
     }
 
     override fun onDestroy() {

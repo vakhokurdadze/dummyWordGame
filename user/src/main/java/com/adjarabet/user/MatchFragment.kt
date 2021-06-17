@@ -13,6 +13,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
@@ -32,6 +35,7 @@ class MatchFragment : BaseFragment() {
     private lateinit var exitMatchDialog:AlertDialog
     private lateinit var matchResultDialog:AlertDialog
     private lateinit var currentWordSequence:String
+    private lateinit var matchViewModel: MatchViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +46,9 @@ class MatchFragment : BaseFragment() {
 
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
         currentWordSequence = ""
+
+        matchViewModel = ViewModelProviders.of(this).get(MatchViewModel::class.java)
+
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -62,20 +69,31 @@ class MatchFragment : BaseFragment() {
 
         router = (activity?.application as WordGameApplication).cicerone.router
 
-        updateMoveRecycler(Player.USER,"")
-        val adapter = matchView.matchInfoRecycler.adapter as MoveRecyclerAdapter
-        val layoutManager = GridLayoutManager(context, 2)
 
-        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                val type = adapter.getItemViewType(position)
-                return if (type == MoveRecyclerAdapter.HEADER_VIEW
-                ) 2 else 1
+        matchViewModel.lastMove.observe(viewLifecycleOwner, {
+            val adapter = MoveRecyclerAdapter(it.lastMoveBy,it.lastMove)
+            matchView.matchInfoRecycler.adapter = adapter
+
+            if(matchView.matchInfoRecycler.layoutManager == null){
+
+                val layoutManager = GridLayoutManager(context, 2)
+
+                layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        val type = adapter.getItemViewType(position)
+                        return if (type == MoveRecyclerAdapter.HEADER_VIEW
+                        ) 2 else 1
+                    }
+
+                }
+                matchView.matchInfoRecycler.layoutManager = layoutManager
             }
+        })
 
-        }
+        initMatch()
 
-        matchView.matchInfoRecycler.layoutManager = layoutManager
+
+
 
         matchView.play.setOnClickListener {
 
@@ -94,7 +112,7 @@ class MatchFragment : BaseFragment() {
             if(currentWordSequence.isEmpty() &&
                 inputWordList.size == 1){
                 userMove(wordSequenceInput)
-                updateMoveRecycler(Player.USER,inputWordList.last())
+                matchViewModel.lastMove.value = LastMove(Player.USER,inputWordList.last())
 
                 currentWordSequence = wordSequenceInput
                 return@setOnClickListener
@@ -113,7 +131,7 @@ class MatchFragment : BaseFragment() {
                 && isProperWordNumber){
 
                 userMove(wordSequenceInput)
-                updateMoveRecycler(Player.USER,inputWordList.last())
+                matchViewModel.lastMove.value = LastMove(Player.USER,inputWordList.last())
                 currentWordSequence = wordSequenceInput
 
             } else if(wordSequenceInput.isEmpty()){
@@ -152,12 +170,19 @@ class MatchFragment : BaseFragment() {
         return matchView
     }
 
-    private fun updateMoveRecycler(lastMoveBy:Player,lastmove:String){
 
-        val adapter = MoveRecyclerAdapter(lastMoveBy,lastmove)
+    private fun initMatch(){
+        val whoStartsBundle = arguments?.getString(Constants.WHO_STARTS)
+        val whoStarts = if(whoStartsBundle != null && whoStartsBundle.isNotEmpty())
+            Player.valueOf(whoStartsBundle)
+        else Player.USER
 
-        matchView.matchInfoRecycler.adapter = adapter
-
+        if(whoStarts == Player.BOT){
+            matchViewModel.lastMove.value = LastMove(Player.BOT,"")
+            userMove(Constants.BOT_STARTS_THE_MATCH)
+        }else{
+            matchViewModel.lastMove.value = LastMove(Player.USER,"")
+        }
     }
 
     override fun onBackPressed() {
@@ -223,7 +248,7 @@ class MatchFragment : BaseFragment() {
         this.matchResultDialog = dialogBuilder.create()
 
         val menu = matchResultDialogView.findViewById<TextView>(R.id.menu)
-        val newGame = matchResultDialogView.findViewById<TextView>(R.id.newGame)
+        val rematch = matchResultDialogView.findViewById<TextView>(R.id.rematch)
 
         if(matchResult is MatchResult.UserLost){
             matchResultDialogView.matchResultHeader.text = resources.getString(com.adjarabet.basemodule.R.string.botWon)
@@ -247,11 +272,12 @@ class MatchFragment : BaseFragment() {
         matchResultDialog.setCanceledOnTouchOutside(false)
 
 
-        newGame.setOnClickListener {
+        rematch.setOnClickListener {
             matchResultDialog.dismiss()
             matchView.wordSequenceInput.text?.clear()
-            updateMoveRecycler(Player.USER,"")
+
             startBotService()
+            initMatch()
         }
         menu.setOnClickListener {
             matchResultDialog.dismiss()
@@ -302,7 +328,7 @@ class MatchFragment : BaseFragment() {
                 words.forEachIndexed { index, s ->
                     showCustomToast(index + 1,s)
                     if(index == words.size - 1)
-                        updateMoveRecycler(Player.BOT,words.last())
+                        matchViewModel.lastMove.value =LastMove(Player.BOT,words.last())
                 }
             }
         }
@@ -326,12 +352,14 @@ class MatchFragment : BaseFragment() {
         matchView.botThinkingLoader.visibility = View.VISIBLE
         matchView.botTurnIndicator.visibility = View.VISIBLE
         matchView.userTurnIndicator.visibility = View.INVISIBLE
+        matchView.play.isEnabled = false
         matchView.wordSequenceInput.text?.clear()
     }
     private fun userTurnView(){
         matchView.botThinkingLoader.visibility = View.INVISIBLE
         matchView.botTurnIndicator.visibility = View.INVISIBLE
         matchView.userTurnIndicator.visibility = View.VISIBLE
+        matchView.play.isEnabled = true
     }
 
     private fun endBotService(){
@@ -352,8 +380,4 @@ class MatchFragment : BaseFragment() {
         activity?.unregisterReceiver(userBroadcastReceiver)
     }
 
-
-    override fun onPause() {
-        super.onPause()
-    }
 }

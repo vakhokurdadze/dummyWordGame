@@ -8,4 +8,6 @@ object Constants {
     const val ACTION_BOT_MOVE = "com.adjarabet.bot.move"
     const val MOVE = "move"
     const val TOO_MUCH_FOR_ME = "bot_has_crashed"
+    const val WHO_STARTS = "who_starts"
+    const val BOT_STARTS_THE_MATCH = "bot_starts_the_match"
 }

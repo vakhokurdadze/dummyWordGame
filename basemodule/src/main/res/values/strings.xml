@@ -13,6 +13,6 @@
     <string name="userWon">YOU WON</string>
     <string name="botWon">YOU LOST</string>
     <string name="menu">MENU</string>
-    <string name="newgame">NEW GAME</string>
+    <string name="rematch">REMATCH</string>
 
 </resources>

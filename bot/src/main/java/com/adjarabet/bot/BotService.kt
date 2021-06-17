@@ -22,11 +22,16 @@ class BotService : Service() {
 
         val userMoveWordCount = if(move.isNotEmpty()) move.split(" ").size else 0
 
-        val userMove = if(randomNumberInRange <=3 || userMoveWordCount > 100)
-            Constants.TOO_MUCH_FOR_ME
-        else "$move ${generateRandomWord(randomWordLengthRange)}"
+        val botWordSequence = if(move == Constants.BOT_STARTS_THE_MATCH)
+            generateRandomWord(randomWordLengthRange)
+        else
+            "$move ${generateRandomWord(randomWordLengthRange)}"
 
-        return userMove
+        val botMove = if(randomNumberInRange <=3 || userMoveWordCount > 100)
+            Constants.TOO_MUCH_FOR_ME
+        else botWordSequence
+
+        return botMove
     }
 
     fun generateRandomWord(length: Int) : String {

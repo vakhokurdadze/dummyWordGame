@@ -45,17 +45,14 @@ class WelcomeFragment : Fragment(){
                 val whoStartsSelected = welcomeView.findViewById<RadioButton>(
                     whoStartsId
                 )
-                if (whoStartsSelected.id == R.id.botStartsRadioButton) {
+                val whoStarts = if(whoStartsSelected.id == R.id.botStartsRadioButton)
+                    Player.BOT.name else Player.USER.name
 
-
-                } else {
-
-                }
                 Intent().also { intent ->
                     intent.action = Constants.ACTION_START_BOT_SERVICE
                     activity?.sendBroadcast(intent)
                 }
-                router.navigateTo(SimpleScreen(Routes.MATCH_SCREEN))
+                router.navigateTo(MatchScreen(whoStarts))
             }
 
         }

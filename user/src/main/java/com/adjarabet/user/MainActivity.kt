@@ -2,8 +2,8 @@ package com.adjarabet.user
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
+import com.adjarabet.basemodule.Constants
 import ru.terrakok.cicerone.Navigator
 import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.commands.Back
@@ -59,13 +59,23 @@ class MainActivity : AppCompatActivity() {
                                     currentScreen.route
                                 )
                             }
-                            Routes.MATCH_SCREEN -> {
-                                replaceFragment(
-                                    MatchFragment(),
-                                    currentScreen.route
-                                )
-                            }
                         }
+                    }
+                    is MatchScreen -> {
+                        val currentScreen = command.screen as MatchScreen
+
+                        val matchFragment = MatchFragment()
+                        val matchFragmentBundle = Bundle().apply {
+                            putString(
+                                Constants.WHO_STARTS,
+                                currentScreen.whoStarts
+                            )
+                        }
+                        matchFragment.arguments = matchFragmentBundle
+                            replaceFragment(
+                                matchFragment,
+                                Routes.WELCOME_SCREEN
+                            )
                     }
                 }
             }

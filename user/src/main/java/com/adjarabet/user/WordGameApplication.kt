@@ -12,13 +12,13 @@ class WordGameApplication : Application() {
 
     companion object {
 
-        lateinit var wordGameApplication: WordGameApplication
+        lateinit var INSTANCE: WordGameApplication
     }
 
     override fun onCreate() {
         super.onCreate()
 
-        wordGameApplication = this
+        INSTANCE = this
         this.initCicerone()
     }
 

@@ -28,6 +28,7 @@ import com.adjarabet.user.model.LostReason
 import com.adjarabet.user.model.MatchResult
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
+import com.adjarabet.user.presentation.dagger.DaggerMatchFragmentComponent
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import com.adjarabet.user.presentation.viewmodel.MatchViewModelFactory
 import kotlinx.android.synthetic.main.fragment_match.view.*
@@ -35,18 +36,23 @@ import kotlinx.android.synthetic.main.match_result_dialog.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
 import kotlinx.coroutines.*
 import ru.terrakok.cicerone.Router
+import javax.inject.Inject
 
 
 class MatchFragment : BaseFragment() {
 
     private lateinit var matchView: View
-    private lateinit var router: Router
     private lateinit var userBroadcastReceiver: BotActionBroadcastReceiver
     private lateinit var viewInflater: LayoutInflater
     private lateinit var exitMatchDialog:AlertDialog
     private lateinit var matchResultDialog:AlertDialog
     private lateinit var currentWordSequence:String
-    private lateinit var matchViewModel: MatchViewModel
+
+    @Inject
+    lateinit var matchViewModel: MatchViewModel
+
+    @Inject
+    lateinit var router: Router
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,13 +64,8 @@ class MatchFragment : BaseFragment() {
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
         currentWordSequence = ""
 
-        val botServiceRepository = BotServiceRepository(BotServiceDataSourceImpl())
-        val interactors = Interactors(
-            StartBotServiceIntent(botServiceRepository),
-            EndBotServiceIntent(botServiceRepository)
-        )
-        matchViewModel = ViewModelProviders.of(this, MatchViewModelFactory(interactors)).get(
-            MatchViewModel::class.java)
+
+        DaggerMatchFragmentComponent.factory().create().inject(this)
 
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -83,8 +84,6 @@ class MatchFragment : BaseFragment() {
         userBroadcastReceiver = BotActionBroadcastReceiver()
         val filter = IntentFilter(Constants.ACTION_BOT_MOVE)
         activity?.registerReceiver(userBroadcastReceiver, filter)
-
-        router = (activity?.application as WordGameApplication).cicerone.router
 
 
         matchViewModel.lastMove.observe(viewLifecycleOwner, {

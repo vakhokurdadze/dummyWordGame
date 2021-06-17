@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">DummyWordGame</string>
     <string name="match">Match</string>
+    <string name="welcomeScreenHeader">Dummy Word Game</string>
     <string name="duplicate_words">You have repeated words</string>
     <string name="no_matching">Your sequence doesn\'t follow expected word sequence</string>
     <string name="improper_word_count">Improper word amount</string>

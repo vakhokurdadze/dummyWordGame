@@ -4,5 +4,5 @@ import com.adjarabet.basemodule.data.repo.BotServiceRepository
 import javax.inject.Inject
 
 class StartBotServiceIntent @Inject constructor(private val botServiceRepo: BotServiceRepository) {
-    operator fun invoke() = botServiceRepo.startBotServiceIntent()
+    operator fun invoke(action:String) = botServiceRepo.startBotServiceIntent(action)
 }

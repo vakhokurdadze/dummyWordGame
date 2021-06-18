@@ -372,11 +372,15 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun endBotService(){
-        val endBotServiceIntent = matchViewModel.interactors.endBotServiceIntent()
+        val endBotServiceIntent = matchViewModel.interactors.endBotServiceIntent(
+            Constants.ACTION_STOP_BOT_SERVICE
+        )
         activity?.sendBroadcast(endBotServiceIntent)
     }
     private fun startBotService(){
-        val startBotServiceIntent = matchViewModel.interactors.startBotServiceIntent()
+        val startBotServiceIntent = matchViewModel.interactors.startBotServiceIntent(
+            Constants.ACTION_START_BOT_SERVICE
+        )
         activity?.sendBroadcast(startBotServiceIntent)
     }
 

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.fragment.app.Fragment
+import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.presentation.router.MatchScreen
 import com.adjarabet.user.model.Player
@@ -60,7 +61,9 @@ class WelcomeFragment : Fragment(){
                     Player.BOT.name else Player.USER.name
 
                 val startBotServiceIntent =
-                    welcomeViewModel.interactors.startBotServiceIntent()
+                    welcomeViewModel.interactors.startBotServiceIntent(
+                        Constants.ACTION_START_BOT_SERVICE
+                    )
 
                 activity?.sendBroadcast(startBotServiceIntent)
 

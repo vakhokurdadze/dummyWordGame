@@ -1,4 +1,4 @@
-package com.adjarabet.user.presentation.viewmodel.match
+package com.adjarabet.user.presentation.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

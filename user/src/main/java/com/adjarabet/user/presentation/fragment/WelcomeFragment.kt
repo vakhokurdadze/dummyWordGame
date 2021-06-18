@@ -1,20 +1,17 @@
 package com.adjarabet.user.presentation.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.fragment.app.Fragment
-import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.presentation.router.MatchScreen
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.R
-import com.adjarabet.user.WordGameApplication
 import com.adjarabet.user.dagger.DaggerWelcomeFragmentComponent
-import com.adjarabet.user.presentation.viewmodel.welcome.WelcomeViewModel
+import com.adjarabet.user.presentation.viewmodel.WelcomeViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.fragment_welcome.view.*
 import ru.terrakok.cicerone.Router

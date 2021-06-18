@@ -1,4 +1,4 @@
-package com.adjarabet.user.presentation.viewmodel.welcome
+package com.adjarabet.user.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.adjarabet.user.framework.Interactors

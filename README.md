@@ -16,3 +16,11 @@ have two options to start the game. Either you select that you start the game or
 If you do not select none of the field and press start button then message pops up indicating that you have to select one
 of the options. As soon as one of the players lose the game the dialog pops up which says information regarding the winner
 and match details and suggests whether you want to play again or go to welcome page. Enjoy the game!
+
+project specifications:
+
+The Project is written in kotlin programming language
+For the navigation system cicerone's router is used
+Constructed in MVVM architectural pattern with clean architecture elements
+For dependency injections the dagger 2 library is used
+

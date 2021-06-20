@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
 
     @Inject
-    lateinit var router : Router
+    lateinit var router: Router
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,41 +34,36 @@ class MainActivity : AppCompatActivity() {
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.baseFragmentContainer)
 
-        if(currentFragment == null){
+        if (currentFragment == null)
             navigateToWelcomeFragment()
-        }
 
     }
 
 
-    private fun navigateToWelcomeFragment(){
+    private fun navigateToWelcomeFragment() {
         router.navigateTo(SimpleScreen(Routes.WELCOME_SCREEN))
     }
 
 
-
-    private val navigator : Navigator? by lazy {
-        object : Navigator{
+    private val navigator: Navigator? by lazy {
+        object : Navigator {
             override fun applyCommands(commands: Array<out Command>?) {
                 if (commands?.get(0) is Back) back()
                 else if (commands?.get(0) is Forward) forward(commands[0] as Forward)
             }
 
-            private fun back(){
+            private fun back() {
                 this@MainActivity.onBackPressed()
             }
 
-            private fun forward(command:Forward){
-                when(command.screen){
-                    is SimpleScreen ->{
+            private fun forward(command: Forward) {
+                when (command.screen) {
+                    is SimpleScreen -> {
                         val currentScreen = command.screen as SimpleScreen
 
-                        when(currentScreen.route){
+                        when (currentScreen.route) {
                             Routes.WELCOME_SCREEN -> {
-                                replaceFragment(
-                                    WelcomeFragment(),
-                                    currentScreen.route
-                                )
+                                replaceFragment(WelcomeFragment(), currentScreen.route)
                             }
                         }
                     }
@@ -83,10 +78,10 @@ class MainActivity : AppCompatActivity() {
                             )
                         }
                         matchFragment.arguments = matchFragmentBundle
-                            replaceFragment(
-                                matchFragment,
-                                Routes.WELCOME_SCREEN
-                            )
+                        replaceFragment(
+                            matchFragment,
+                            Routes.WELCOME_SCREEN
+                        )
                     }
                 }
             }
@@ -97,21 +92,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun <F> replaceFragment(fragment: F, tag: String) where F : Fragment {
 
-        val fragTransaction = supportFragmentManager.beginTransaction()
-        fragTransaction.replace(R.id.baseFragmentContainer, fragment)
-        fragTransaction.addToBackStack(tag)
-        fragTransaction.setPrimaryNavigationFragment(fragment)
-        fragTransaction.commitAllowingStateLoss()
-
+        supportFragmentManager.beginTransaction().apply {
+            this.replace(R.id.baseFragmentContainer, fragment)
+            this.addToBackStack(tag)
+            this.setPrimaryNavigationFragment(fragment)
+            this.commitAllowingStateLoss()
+        }
     }
 
     override fun onBackPressed() {
 
         val currentFragment = supportFragmentManager.findFragmentById(R.id.baseFragmentContainer)
 
-        if(currentFragment != null && currentFragment is WelcomeFragment){
+        if (currentFragment != null && currentFragment is WelcomeFragment) {
             finish()
-        }else if(currentFragment != null){
+        } else if (currentFragment != null) {
             (currentFragment as BaseFragment).onBackPressed()
         }
     }

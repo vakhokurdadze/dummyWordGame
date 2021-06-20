@@ -1,7 +1,6 @@
 package com.adjarabet.user
 
 import android.app.Application
-import android.content.Context
 import ru.terrakok.cicerone.Cicerone
 import ru.terrakok.cicerone.Router
 
@@ -22,7 +21,7 @@ class WordGameApplication : Application() {
         this.initCicerone()
     }
 
-    private fun initCicerone(){
+    private fun initCicerone() {
         this.cicerone = Cicerone.create()
     }
 }

@@ -6,14 +6,14 @@ import dagger.Component;
 import ru.terrakok.cicerone.Router;
 
 @Component(
-        modules = [RouterModule::class]
+    modules = [RouterModule::class]
 )
 interface WelcomeFragmentComponent {
 
-        fun inject(welcomeFragment: WelcomeFragment)
+    fun inject(welcomeFragment: WelcomeFragment)
 
-        @Component.Factory
-        interface Factory {
-                fun create(): WelcomeFragmentComponent
-        }
+    @Component.Factory
+    interface Factory {
+        fun create(): WelcomeFragmentComponent
+    }
 }

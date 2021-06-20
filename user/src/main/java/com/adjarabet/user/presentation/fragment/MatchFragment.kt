@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.*
 import android.view.*
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -16,15 +15,12 @@ import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.*
 import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
-import com.adjarabet.user.model.LostReason
 import com.adjarabet.user.model.MatchResult
 import com.adjarabet.user.presentation.CustomDialogProvider
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
-import kotlinx.android.synthetic.main.match_result_dialog.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
-import kotlinx.coroutines.*
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
@@ -170,7 +166,7 @@ class MatchFragment : BaseFragment() {
         exitMatchDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
-    private fun exitMatch(){
+    private fun exitMatch() {
         endBotService()
         parentFragmentManager.popBackStack()
     }
@@ -193,18 +189,18 @@ class MatchFragment : BaseFragment() {
 
     }
 
-    private fun rematch(){
+    private fun rematch() {
         matchResultDialog.dismiss()
         matchView.wordSequenceInput.text?.clear()
         startBotService()
     }
 
-    private fun goToMenu(){
+    private fun goToMenu() {
         matchResultDialog.dismiss()
         parentFragmentManager.popBackStack()
     }
 
-    private fun goBack(){
+    private fun goBack() {
         endBotService()
         parentFragmentManager.popBackStack()
     }

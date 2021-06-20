@@ -13,41 +13,38 @@ import javax.inject.Inject
 class MatchViewModel @Inject constructor() : ViewModel() {
 
     val _lastMove = MutableLiveData<LastMove>()
-    val lastMove : LiveData<LastMove> get() = _lastMove
+    val lastMove: LiveData<LastMove> get() = _lastMove
 
-    val _expectedWordSequence = SingleLiveEvent<String>()
+    var _expectedWordSequence = ""
 
     val _matchResult = SingleLiveEvent<MatchResult>()
-    val matchResult : LiveData<MatchResult> get() = _matchResult
+    val matchResult: LiveData<MatchResult> get() = _matchResult
 
     val _userMove = SingleLiveEvent<String>()
-    val userMove : LiveData<String> get() = _userMove
+    val userMove: LiveData<String> get() = _userMove
 
     val _messagePopUp = SingleLiveEvent<SnackBarMessage>()
-    val messagePopUp : LiveData<SnackBarMessage> get() = _messagePopUp
+    val messagePopUp: LiveData<SnackBarMessage> get() = _messagePopUp
 
     val _toastPopUp = SingleLiveEvent<BotMoveToast>()
-    val toastPopUp : LiveData<BotMoveToast> get() = _toastPopUp
+    val toastPopUp: LiveData<BotMoveToast> get() = _toastPopUp
 
     init {
-        _expectedWordSequence.value = ""
+        _expectedWordSequence = ""
     }
 
 
-    fun clearExpectedWordSequence(){
-        _expectedWordSequence.value = ""
+    fun clearExpectedWordSequence() {
+        _expectedWordSequence = ""
     }
 
-    fun play(wordSequenceInput:String){
+    fun play(wordSequenceInput: String) {
 
-        val currentWordSequence = _expectedWordSequence.value ?: ""
-
+        val currentWordSequence = _expectedWordSequence
         val inputWordList = if (wordSequenceInput.isNotEmpty())
-            wordSequenceInput.split(" ")
-        else mutableListOf()
+            wordSequenceInput.split(" ") else mutableListOf()
         val currentSequenceWordList = if (currentWordSequence.isNotEmpty())
-            currentWordSequence.split(" ")
-        else mutableListOf()
+            currentWordSequence.split(" ") else mutableListOf()
 
         val inputHasNoDuplicate = inputWordList.size == inputWordList.distinct().size
         val isProperWordNumber = (currentSequenceWordList.size + 1) == inputWordList.size
@@ -58,12 +55,11 @@ class MatchViewModel @Inject constructor() : ViewModel() {
             _userMove.value = wordSequenceInput
             _lastMove.value = LastMove(Player.USER, inputWordList.last())
 
-            _expectedWordSequence.value = wordSequenceInput
+            _expectedWordSequence = wordSequenceInput
             return
         } else if (currentWordSequence.isEmpty() && inputWordList.size > 1) {
             _messagePopUp.value = SnackBarMessage(
-                R.string.error,
-                com.adjarabet.basemodule.R.string.improperWordNumber
+                R.string.error, com.adjarabet.basemodule.R.string.improperWordNumber
             )
         }
 
@@ -71,45 +67,33 @@ class MatchViewModel @Inject constructor() : ViewModel() {
             && inputWordList.containsAll(currentSequenceWordList)
             && isProperWordNumber
         ) {
-
             _userMove.value = wordSequenceInput
             _lastMove.value = LastMove(Player.USER, inputWordList.last())
-            _expectedWordSequence.value = wordSequenceInput
-
+            _expectedWordSequence = wordSequenceInput
         } else if (wordSequenceInput.isEmpty()) {
-
             _messagePopUp.value = SnackBarMessage(
-                R.string.error,
-                R.string.emptyInputError
+                R.string.error, R.string.emptyInputError
             )
-
-            return
         } else if (!inputHasNoDuplicate) {
-
             val matchResult = MatchResult.UserLost(
                 currentWordSequence, wordSequenceInput, LostReason.DUPLICATE_WORD
             )
-
             _matchResult.value = matchResult
-
         } else if (!isProperWordNumber) {
             val matchResult = MatchResult.UserLost(
                 currentWordSequence, wordSequenceInput, LostReason.IMPROPER_WORD_NUMBER
             )
             _matchResult.value = matchResult
-
-
         } else {
             val matchResult = MatchResult.UserLost(
                 currentWordSequence, wordSequenceInput, LostReason.NO_MATCHING
             )
             _matchResult.value = matchResult
-
         }
     }
 
 
-     fun initMatch(whoStartsBundle:String?) {
+    fun initMatch(whoStartsBundle: String?) {
 
         val whoStarts = if (whoStartsBundle != null && whoStartsBundle.isNotEmpty())
             Player.valueOf(whoStartsBundle)
@@ -124,9 +108,9 @@ class MatchViewModel @Inject constructor() : ViewModel() {
     }
 
 
-    fun botHasPlayed(move:String){
+    fun botHasPlayed(move: String) {
 
-       _expectedWordSequence.value = move
+        _expectedWordSequence = move
 
         if (move == Constants.TOO_MUCH_FOR_ME) {
             _matchResult.value = MatchResult.UserWon
@@ -138,7 +122,7 @@ class MatchViewModel @Inject constructor() : ViewModel() {
             words.forEachIndexed { index, s ->
                 _toastPopUp.value = BotMoveToast(index + 1, s)
                 if (index == words.size - 1)
-                    _lastMove.value = LastMove(Player.BOT,words.last())
+                    _lastMove.value = LastMove(Player.BOT, words.last())
             }
         }
     }

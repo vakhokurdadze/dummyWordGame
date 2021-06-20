@@ -18,7 +18,17 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".BotService"/>
+        <service
+            android:name="com.adjarabet.bot.BotService"
+            android:exported="true"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="com.adjarabet.bot.BotService.botservice" />
+            </intent-filter>
+        </service>
+
     </application>
 
 

@@ -1,13 +1,12 @@
 package com.adjarabet.user.presentation.fragment
 
 import android.app.AlertDialog
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.app.Service
+import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
+import android.os.*
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -17,12 +16,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.*
+import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
 import com.adjarabet.user.model.LastMove
 import com.adjarabet.user.model.LostReason
 import com.adjarabet.user.model.MatchResult
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
-import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.match_result_dialog.view.*
@@ -40,6 +39,9 @@ class MatchFragment : BaseFragment() {
     private lateinit var exitMatchDialog:AlertDialog
     private lateinit var matchResultDialog:AlertDialog
     private lateinit var currentWordSequence:String
+    private var botService : Messenger? = null
+    private var bound : Boolean = false
+    private val messenger = Messenger(IncomingHandler(this::botHasPlayedCallBack))
 
     @Inject
     lateinit var matchViewModel: MatchViewModel
@@ -79,6 +81,14 @@ class MatchFragment : BaseFragment() {
         activity?.registerReceiver(userBroadcastReceiver, filter)
 
 
+
+        Intent("com.adjarabet.bot.BotService.botservice").also { intent ->
+
+           val success = context?.bindService(intent, botServiceConnection, Context.BIND_AUTO_CREATE)
+          success
+        }
+
+
         matchViewModel.lastMove.observe(viewLifecycleOwner, {
             val adapter = MoveRecyclerAdapter(it.lastMoveBy,it.lastMove)
             matchView.matchInfoRecycler.adapter = adapter
@@ -98,10 +108,6 @@ class MatchFragment : BaseFragment() {
                 matchView.matchInfoRecycler.layoutManager = layoutManager
             }
         })
-
-        initMatch()
-
-
 
 
         matchView.play.setOnClickListener {
@@ -177,6 +183,20 @@ class MatchFragment : BaseFragment() {
         }
 
         return matchView
+    }
+
+    private val botServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
+            botService = Messenger(service)
+            bound = true
+
+            initMatch()
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            botService = null
+            bound = false
+        }
     }
 
 
@@ -306,13 +326,13 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun userMove(wordSequenceInput:String){
-        Intent().also { intent ->
-            intent.action = Constants.ACTION_USER_MOVE
-            intent.putExtra(Constants.MOVE, wordSequenceInput)
-            activity?.sendBroadcast(intent)
 
-            botsTurnView()
-        }
+        val userMove = Message.obtain(
+            null,Constants.MESSAGE_USER_MOVE,wordSequenceInput,
+        )
+        userMove.replyTo = messenger
+        botService?.send(userMove)
+        botsTurnView()
     }
 
     inner class BotActionBroadcastReceiver : BroadcastReceiver() {
@@ -342,18 +362,6 @@ class MatchFragment : BaseFragment() {
             }
         }
 
-
-        private fun showCustomToast(index:Int,word:String){
-            if(::viewInflater.isInitialized && context != null){
-                val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast,null)
-                val toast = Toast(context)
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, -580)
-                toast.duration = Toast.LENGTH_SHORT
-                toast.view = customWordSequenceToast
-                toast.show()
-                customWordSequenceToast.toastText.text = "$index. $word"
-            }
-        }
     }
 
     private fun botsTurnView(){
@@ -384,9 +392,67 @@ class MatchFragment : BaseFragment() {
         activity?.sendBroadcast(startBotServiceIntent)
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         activity?.unregisterReceiver(userBroadcastReceiver)
+    }
+
+    private fun botHasPlayedCallBack(move:String){
+
+        userTurnView()
+
+        val currentWordSequence = move
+
+
+        this@MatchFragment.currentWordSequence = currentWordSequence
+
+        if(currentWordSequence == Constants.TOO_MUCH_FOR_ME){
+            val matchResult = MatchResult.UserWon
+            matchResultDialogInit(matchResult)
+            matchResultDialog.show()
+        }else{
+            val words = if(currentWordSequence.isNotEmpty())
+                currentWordSequence.split(" ")
+            else mutableListOf()
+
+            words.forEachIndexed { index, s ->
+                showCustomToast(index + 1,s)
+                if(index == words.size - 1)
+                    matchViewModel.lastMove.value = LastMove(Player.BOT,words.last())
+            }
+        }
+    }
+
+
+    private fun showCustomToast(index:Int,word:String){
+        if(::viewInflater.isInitialized && context != null){
+            val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast,null)
+            val toast = Toast(context)
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, -580)
+            toast.duration = Toast.LENGTH_SHORT
+            toast.view = customWordSequenceToast
+            toast.show()
+            customWordSequenceToast.toastText.text = "$index. $word"
+        }
+    }
+
+    class IncomingHandler(private val botHasPlayedCallBack:(String) -> Unit) : Handler() {
+
+        override fun handleMessage(msg: Message) {
+            when(msg.what){
+                Constants.MESSAGE_BOT_MOVE -> botHasPlayedCallBack((msg.obj as String))
+                else -> super.handleMessage(msg)
+            }
+        }
     }
 
 }

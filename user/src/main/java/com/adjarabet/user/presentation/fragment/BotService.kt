@@ -1,25 +1,23 @@
-package com.adjarabet.bot
+package com.adjarabet.user.presentation.fragment
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.*
 import com.adjarabet.basemodule.Constants
 import kotlinx.coroutines.*
-import kotlin.random.Random
 
 class BotService : Service() {
 
 
-     private var messenger = Messenger(IncomingHandler(this::userHasPlayedCallBack))
+    private var messenger = Messenger(IncomingHandler(this::userHasPlayedCallBack))
 
     override fun onBind(p0: Intent?): IBinder {
         return messenger.binder
     }
 
-     class IncomingHandler(
-         private val userHasPlayedCallBack:(move :String) -> Unit
-     ) : Handler(){
+    class IncomingHandler(
+        private val userHasPlayedCallBack:(move :String) -> Unit
+    ) : Handler(){
 
         override fun handleMessage(msg: Message) {
             when(msg.what){
@@ -39,7 +37,7 @@ class BotService : Service() {
                 val botMove = obtainBotMove(move)
 
                 val botMoveMessage = Message.obtain(
-                    null,Constants.MESSAGE_BOT_MOVE,botMove,
+                    null, Constants.MESSAGE_BOT_MOVE,botMove,
                 )
                 messenger.send(botMoveMessage)
             }

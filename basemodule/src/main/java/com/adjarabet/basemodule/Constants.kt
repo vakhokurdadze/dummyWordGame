@@ -10,4 +10,7 @@ object Constants {
     const val TOO_MUCH_FOR_ME = "bot_has_crashed"
     const val WHO_STARTS = "who_starts"
     const val BOT_STARTS_THE_MATCH = "bot_starts_the_match"
+
+    const val MESSAGE_USER_MOVE = 0
+    const val MESSAGE_BOT_MOVE = 1
 }

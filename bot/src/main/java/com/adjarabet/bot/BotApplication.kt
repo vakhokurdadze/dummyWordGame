@@ -21,12 +21,17 @@ class BotApplication : Application() {
         filter.addAction(Constants.ACTION_START_BOT_SERVICE)
         filter.addAction(Constants.ACTION_STOP_BOT_SERVICE)
         registerReceiver(userBroadcastReceiver, filter)
+/*
+        Intent("com.adjarabet.bot.BotService.botservice").also { intent ->
+            intent.setPackage(packageName)
+            startService(intent)
+        }*/
     }
 
     inner class UserBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            val action = intent?.action
+          /*  val action = intent?.action
 
             if(action == Constants.ACTION_START_BOT_SERVICE){
                 Intent(context, BotService::class.java).also { i ->
@@ -45,7 +50,7 @@ class BotApplication : Application() {
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 

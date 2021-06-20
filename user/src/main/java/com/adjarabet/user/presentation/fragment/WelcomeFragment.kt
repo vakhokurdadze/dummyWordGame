@@ -26,8 +26,6 @@ class WelcomeFragment : Fragment(){
     @Inject
     lateinit var router : Router
 
-    @Inject
-    lateinit var welcomeViewModel: WelcomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,13 +57,6 @@ class WelcomeFragment : Fragment(){
                 )
                 val whoStarts = if(whoStartsSelected.id == R.id.botStartsRadioButton)
                     Player.BOT.name else Player.USER.name
-
-                val startBotServiceIntent =
-                    welcomeViewModel.interactors.startBotServiceIntent(
-                        Constants.ACTION_START_BOT_SERVICE
-                    )
-
-                activity?.sendBroadcast(startBotServiceIntent)
 
                 router.navigateTo(MatchScreen(whoStarts))
             }

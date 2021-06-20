@@ -17,7 +17,7 @@ class BotService : Service() {
 
     class IncomingHandler(
         private val userHasPlayedCallBack:(move :String) -> Unit
-    ) : Handler(){
+    ) : Handler(Looper.getMainLooper()){
 
         override fun handleMessage(msg: Message) {
             when(msg.what){

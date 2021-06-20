@@ -1,9 +1,7 @@
 package com.adjarabet.user.presentation.fragment
 
 import android.app.AlertDialog
-import android.app.Service
 import android.content.*
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.*
@@ -12,15 +10,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.*
 import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
-import com.adjarabet.user.model.LastMove
 import com.adjarabet.user.model.LostReason
 import com.adjarabet.user.model.MatchResult
-import com.adjarabet.user.model.Player
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
@@ -35,11 +32,10 @@ class MatchFragment : BaseFragment() {
 
     private lateinit var matchView: View
     private lateinit var viewInflater: LayoutInflater
-    private lateinit var exitMatchDialog:AlertDialog
-    private lateinit var matchResultDialog:AlertDialog
-    private lateinit var currentWordSequence:String
-    private var botService : Messenger? = null
-    private var bound : Boolean = false
+    private lateinit var exitMatchDialog: AlertDialog
+    private lateinit var matchResultDialog: AlertDialog
+    private var botService: Messenger? = null
+    private var bound: Boolean = false
     private val messenger = Messenger(IncomingHandler(this::botHasPlayedCallBack))
 
     @Inject
@@ -54,121 +50,71 @@ class MatchFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
-
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
-        currentWordSequence = ""
-
 
         DaggerMatchFragmentComponent.factory().create().inject(this)
 
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-        val toolbar: Toolbar = matchView.matchToolBar
-
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
-
-        toolbar.setNavigationOnClickListener {
-            onBackPressed()
-        }
-
+        toolBarConfig()
         startBotService()
 
-
         matchViewModel.lastMove.observe(viewLifecycleOwner, {
-            val adapter = MoveRecyclerAdapter(it.lastMoveBy,it.lastMove)
+            val adapter = MoveRecyclerAdapter(it.lastMoveBy, it.lastMove)
             matchView.matchInfoRecycler.adapter = adapter
 
-            if(matchView.matchInfoRecycler.layoutManager == null){
+            if (matchView.matchInfoRecycler.layoutManager == null) {
 
                 val layoutManager = GridLayoutManager(context, 2)
 
                 layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int {
                         val type = adapter.getItemViewType(position)
-                        return if (type == MoveRecyclerAdapter.HEADER_VIEW
-                        ) 2 else 1
+                        return if (type == MoveRecyclerAdapter.HEADER_VIEW) 2 else 1
                     }
-
                 }
                 matchView.matchInfoRecycler.layoutManager = layoutManager
             }
         })
 
+        matchViewModel.userMove.observe(viewLifecycleOwner, Observer {
+
+            val userMoveBundle = Bundle().apply {
+                putString(Constants.USER_MOVE_BUNDLE, it)
+            }
+            val userMove = Message.obtain(
+                null, Constants.MESSAGE_USER_MOVE, 0, 0, userMoveBundle
+            )
+            userMove.replyTo = messenger
+            botService?.send(userMove)
+            botsTurnView()
+        })
+
+        matchViewModel.messagePopUp.observe(viewLifecycleOwner, Observer {
+
+            SnackbarProvider.newSnackBar(
+                requireContext(),
+                resources.getString(it.titleResourceId),
+                resources.getString(it.messageResourceId),
+                matchView.matchFragmentRoot,
+                150
+            ).show()
+        })
+
+        matchViewModel.matchResult.observe(viewLifecycleOwner, Observer {
+            matchResultDialogInit(it)
+            matchResultDialog.show()
+        })
+
+        matchViewModel.toastPopUp.observe(viewLifecycleOwner, Observer {
+            showCustomToast(it.index, it.word)
+        })
+
 
         matchView.play.setOnClickListener {
-
-
             val wordSequenceInput = matchView.wordSequenceInput.text.toString()
-            val inputWordList = if(wordSequenceInput.isNotEmpty())
-                wordSequenceInput.split(" ")
-            else mutableListOf()
-            val currentSequenceWordList = if(currentWordSequence.isNotEmpty())
-                currentWordSequence.split(" ")
-            else mutableListOf()
-
-            val inputHasNoDuplicate = inputWordList.size == inputWordList.distinct().size
-            val isProperWordNumber = (currentSequenceWordList.size + 1) == inputWordList.size
-
-            if(currentWordSequence.isEmpty() &&
-                inputWordList.size == 1){
-                userMove(wordSequenceInput)
-                matchViewModel.lastMove.value = LastMove(Player.USER,inputWordList.last())
-
-                currentWordSequence = wordSequenceInput
-                return@setOnClickListener
-            }else if (currentWordSequence.isEmpty() && inputWordList.size > 1){
-                SnackbarProvider.newSnackBar(
-                    requireContext(),
-                    resources.getString(R.string.error),
-                    resources.getString(com.adjarabet.basemodule.R.string.improperWordNumber),
-                    matchView.matchFragmentRoot,
-                    150
-                ).show()
-            }
-
-            if(wordSequenceInput.isNotEmpty() && inputHasNoDuplicate
-                && inputWordList.containsAll(currentSequenceWordList)
-                && isProperWordNumber){
-
-                userMove(wordSequenceInput)
-                matchViewModel.lastMove.value = LastMove(Player.USER,inputWordList.last())
-                currentWordSequence = wordSequenceInput
-
-            } else if(wordSequenceInput.isEmpty()){
-                SnackbarProvider.newSnackBar(
-                    requireContext(),
-                    resources.getString(R.string.error),
-                    resources.getString(R.string.emptyInputError),
-                    matchView.matchFragmentRoot,
-                    150
-                ).show()
-
-                return@setOnClickListener
-            } else if(!inputHasNoDuplicate){
-
-                val matchResult = MatchResult.UserLost(
-                    currentWordSequence, wordSequenceInput, LostReason.DUPLICATE_WORD
-                )
-                matchResultDialogInit(matchResult)
-                matchResultDialog.show()
-            } else if(!isProperWordNumber){
-                val matchResult = MatchResult.UserLost(
-                    currentWordSequence, wordSequenceInput, LostReason.IMPROPER_WORD_NUMBER
-                )
-                matchResultDialogInit(matchResult)
-                matchResultDialog.show()
-
-            } else{
-                val matchResult = MatchResult.UserLost(
-                    currentWordSequence, wordSequenceInput, LostReason.NO_MATCHING
-                )
-                matchResultDialogInit(matchResult)
-                matchResultDialog.show()
-            }
+            matchViewModel.play(wordSequenceInput)
         }
 
         return matchView
@@ -178,8 +124,8 @@ class MatchFragment : BaseFragment() {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
             botService = Messenger(service)
             bound = true
-
-            initMatch()
+            val whoStartsBundle = arguments?.getString(Constants.WHO_STARTS)
+            matchViewModel.initMatch(whoStartsBundle)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -188,37 +134,40 @@ class MatchFragment : BaseFragment() {
         }
     }
 
+    private fun toolBarConfig() {
 
-    private fun initMatch(){
-        val whoStartsBundle = arguments?.getString(Constants.WHO_STARTS)
-        val whoStarts = if(whoStartsBundle != null && whoStartsBundle.isNotEmpty())
-            Player.valueOf(whoStartsBundle)
-        else Player.USER
+        val toolbar: Toolbar = matchView.matchToolBar
+        val supportActionBar = (requireActivity() as AppCompatActivity)
 
-        if(whoStarts == Player.BOT){
-            matchViewModel.lastMove.value = LastMove(Player.BOT,"")
-            userMove(Constants.BOT_STARTS_THE_MATCH)
-        }else{
-            matchViewModel.lastMove.value = LastMove(Player.USER,"")
+        supportActionBar.apply {
+            this.setSupportActionBar(toolbar)
+            this.supportActionBar?.setDisplayShowTitleEnabled(true)
+            this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            this.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
+        }
+
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
         }
     }
 
     override fun onBackPressed() {
         exitMatchDialogInit()
-        if(::exitMatchDialog.isInitialized){
-            if(!exitMatchDialog.isShowing){
+        if (::exitMatchDialog.isInitialized) {
+            if (!exitMatchDialog.isShowing) {
                 exitMatchDialog.show()
-            }else{
+            } else {
                 parentFragmentManager.popBackStack()
             }
         }
     }
 
-    private fun exitMatchDialogInit(){
+    private fun exitMatchDialogInit() {
 
         val exitMatchDialogView = viewInflater.inflate(
             R.layout.match_exit_dialog,
-            null)
+            null
+        )
 
         val dialogBuilder = AlertDialog.Builder(context).setView(exitMatchDialogView)
 
@@ -240,7 +189,7 @@ class MatchFragment : BaseFragment() {
         exitMatchDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         exitMatchDialog.setOnKeyListener { v, keyCode, event ->
-            if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 endBotService()
                 parentFragmentManager.popBackStack()
             }
@@ -248,18 +197,20 @@ class MatchFragment : BaseFragment() {
         }
 
     }
-    private fun matchHasEnded(){
+
+    private fun matchHasEnded() {
         endBotService()
         userTurnView()
-        this.currentWordSequence = ""
+        matchViewModel.clearExpectedWordSequence()
     }
 
-    private fun matchResultDialogInit(matchResult: MatchResult){
+    private fun matchResultDialogInit(matchResult: MatchResult) {
 
         matchHasEnded()
         val matchResultDialogView = viewInflater.inflate(
             R.layout.match_result_dialog,
-            null)
+            null
+        )
 
         val dialogBuilder = AlertDialog.Builder(context).setView(matchResultDialogView)
 
@@ -268,24 +219,27 @@ class MatchFragment : BaseFragment() {
         val menu = matchResultDialogView.findViewById<TextView>(R.id.menu)
         val rematch = matchResultDialogView.findViewById<TextView>(R.id.rematch)
 
-        if(matchResult is MatchResult.UserLost){
-            matchResultDialogView.matchResultHeader.text = resources.getString(com.adjarabet.basemodule.R.string.botWon)
+        if (matchResult is MatchResult.UserLost) {
+            matchResultDialogView.matchResultHeader.text =
+                resources.getString(com.adjarabet.basemodule.R.string.botWon)
 
-          matchResultDialogView.matchResultDescription.text =  when(matchResult.reason){
-                LostReason.IMPROPER_WORD_NUMBER ->{
+            matchResultDialogView.matchResultDescription.text = when (matchResult.reason) {
+                LostReason.IMPROPER_WORD_NUMBER -> {
                     "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
                 }
                 LostReason.NO_MATCHING -> {
                     "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
 
                 }
-                else ->{
+                else -> {
                     "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.duplicate_words)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
                 }
             }
-        }else{
-            matchResultDialogView.matchResultDescription.text = "${resources.getString(R.string.too_much_for_bot)}"
-            matchResultDialogView.matchResultHeader.text = resources.getString(com.adjarabet.basemodule.R.string.userWon)
+        } else {
+            matchResultDialogView.matchResultDescription.text =
+                "${resources.getString(R.string.too_much_for_bot)}"
+            matchResultDialogView.matchResultHeader.text =
+                resources.getString(com.adjarabet.basemodule.R.string.userWon)
         }
         matchResultDialog.setCanceledOnTouchOutside(false)
 
@@ -303,30 +257,15 @@ class MatchFragment : BaseFragment() {
         matchResultDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         matchResultDialog.setOnKeyListener { v, keyCode, event ->
-            if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 endBotService()
                 parentFragmentManager.popBackStack()
             }
             return@setOnKeyListener false
         }
-
     }
 
-    private fun userMove(wordSequenceInput:String){
-
-        val userMoveBundle = Bundle().apply {
-            putString(Constants.USER_MOVE_BUNDLE, wordSequenceInput)
-        }
-        val userMove = Message.obtain(
-            null, Constants.MESSAGE_USER_MOVE, 0,0,userMoveBundle
-        )
-        userMove.replyTo = messenger
-        botService?.send(userMove)
-        botsTurnView()
-    }
-
-
-    private fun botsTurnView(){
+    private fun botsTurnView() {
 
         matchView.botThinkingLoader.visibility = View.VISIBLE
         matchView.botTurnIndicator.visibility = View.VISIBLE
@@ -334,20 +273,22 @@ class MatchFragment : BaseFragment() {
         matchView.play.isEnabled = false
         matchView.wordSequenceInput.text?.clear()
     }
-    private fun userTurnView(){
+
+    private fun userTurnView() {
         matchView.botThinkingLoader.visibility = View.INVISIBLE
         matchView.botTurnIndicator.visibility = View.INVISIBLE
         matchView.userTurnIndicator.visibility = View.VISIBLE
         matchView.play.isEnabled = true
     }
 
-    private fun endBotService(){
+    private fun endBotService() {
         if (bound) {
             context?.unbindService(botServiceConnection)
             bound = false
         }
     }
-    private fun startBotService(){
+
+    private fun startBotService() {
 
         Intent().also { intent ->
             intent.setClassName(
@@ -363,36 +304,14 @@ class MatchFragment : BaseFragment() {
         endBotService()
     }
 
-    private fun botHasPlayedCallBack(move:String){
-
+    private fun botHasPlayedCallBack(move: String) {
         userTurnView()
-
-        val currentWordSequence = move
-
-
-        this@MatchFragment.currentWordSequence = currentWordSequence
-
-        if(currentWordSequence == Constants.TOO_MUCH_FOR_ME){
-            val matchResult = MatchResult.UserWon
-            matchResultDialogInit(matchResult)
-            matchResultDialog.show()
-        }else{
-            val words = if(currentWordSequence.isNotEmpty())
-                currentWordSequence.split(" ")
-            else mutableListOf()
-
-            words.forEachIndexed { index, s ->
-                showCustomToast(index + 1,s)
-                if(index == words.size - 1)
-                    matchViewModel.lastMove.value = LastMove(Player.BOT,words.last())
-            }
-        }
+        matchViewModel.botHasPlayed(move)
     }
 
-
-    private fun showCustomToast(index:Int,word:String){
-        if(::viewInflater.isInitialized && context != null){
-            val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast,null)
+    private fun showCustomToast(index: Int, word: String) {
+        if (::viewInflater.isInitialized && context != null) {
+            val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast, null)
             val toast = Toast(context)
             toast.setGravity(Gravity.CENTER_VERTICAL, 0, -580)
             toast.duration = Toast.LENGTH_SHORT
@@ -402,10 +321,11 @@ class MatchFragment : BaseFragment() {
         }
     }
 
-    class IncomingHandler(private val botHasPlayedCallBack:(String) -> Unit) : Handler() {
+    class IncomingHandler(private val botHasPlayedCallBack: (String) -> Unit) :
+        Handler(Looper.getMainLooper()) {
 
         override fun handleMessage(msg: Message) {
-            when(msg.what){
+            when (msg.what) {
                 Constants.MESSAGE_BOT_MOVE -> {
                     val botMove = (msg.obj as Bundle).getString(Constants.BOT_MOVE_BUNDLE) ?: ""
                     botHasPlayedCallBack(botMove)

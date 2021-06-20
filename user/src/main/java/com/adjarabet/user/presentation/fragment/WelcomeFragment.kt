@@ -6,25 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.fragment.app.Fragment
-import com.adjarabet.basemodule.Constants
 import com.adjarabet.basemodule.SnackbarProvider
 import com.adjarabet.user.presentation.router.MatchScreen
 import com.adjarabet.user.model.Player
 import com.adjarabet.user.R
 import com.adjarabet.user.dagger.DaggerWelcomeFragmentComponent
-import com.adjarabet.user.presentation.viewmodel.WelcomeViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.fragment_welcome.view.*
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
-class WelcomeFragment : Fragment(){
+class WelcomeFragment : Fragment() {
 
 
     private lateinit var welcomeView: View
 
     @Inject
-    lateinit var router : Router
+    lateinit var router: Router
 
 
     override fun onCreateView(
@@ -32,7 +30,7 @@ class WelcomeFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        welcomeView = inflater.inflate(R.layout.fragment_welcome,container,false)
+        welcomeView = inflater.inflate(R.layout.fragment_welcome, container, false)
 
 
         DaggerWelcomeFragmentComponent.factory().create().inject(this)
@@ -55,7 +53,7 @@ class WelcomeFragment : Fragment(){
                 val whoStartsSelected = welcomeView.findViewById<RadioButton>(
                     whoStartsId
                 )
-                val whoStarts = if(whoStartsSelected.id == R.id.botStartsRadioButton)
+                val whoStarts = if (whoStartsSelected.id == R.id.botStartsRadioButton)
                     Player.BOT.name else Player.USER.name
 
                 router.navigateTo(MatchScreen(whoStarts))

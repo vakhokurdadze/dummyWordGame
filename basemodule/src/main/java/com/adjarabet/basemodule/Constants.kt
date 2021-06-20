@@ -13,4 +13,10 @@ object Constants {
 
     const val MESSAGE_USER_MOVE = 0
     const val MESSAGE_BOT_MOVE = 1
+    const val USER_MOVE_BUNDLE = "user_move_bundle"
+    const val BOT_MOVE_BUNDLE = "bot_move_bundle"
+    const val BOT_SERVICE_PACKAGE_NAME = "com.adjarabet.bot"
+    const val BOT_SERVICE_CLASS_NAME = "com.adjarabet.bot.BotService"
+
+
 }

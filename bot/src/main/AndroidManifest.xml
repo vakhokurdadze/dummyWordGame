@@ -8,25 +8,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".BotApplication"
         android:theme="@style/Theme.DummyWordGame">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <service
             android:name="com.adjarabet.bot.BotService"
             android:exported="true"
-            android:process=":remote">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="com.adjarabet.bot.BotService.botservice" />
-            </intent-filter>
+            >
+
         </service>
 
     </application>

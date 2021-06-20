@@ -34,7 +34,6 @@ import javax.inject.Inject
 class MatchFragment : BaseFragment() {
 
     private lateinit var matchView: View
-    private lateinit var userBroadcastReceiver: BotActionBroadcastReceiver
     private lateinit var viewInflater: LayoutInflater
     private lateinit var exitMatchDialog:AlertDialog
     private lateinit var matchResultDialog:AlertDialog
@@ -76,17 +75,7 @@ class MatchFragment : BaseFragment() {
             onBackPressed()
         }
 
-        userBroadcastReceiver = BotActionBroadcastReceiver()
-        val filter = IntentFilter(Constants.ACTION_BOT_MOVE)
-        activity?.registerReceiver(userBroadcastReceiver, filter)
-
-
-
-        Intent("com.adjarabet.bot.BotService.botservice").also { intent ->
-
-           val success = context?.bindService(intent, botServiceConnection, Context.BIND_AUTO_CREATE)
-          success
-        }
+        startBotService()
 
 
         matchViewModel.lastMove.observe(viewLifecycleOwner, {
@@ -304,9 +293,7 @@ class MatchFragment : BaseFragment() {
         rematch.setOnClickListener {
             matchResultDialog.dismiss()
             matchView.wordSequenceInput.text?.clear()
-
             startBotService()
-            initMatch()
         }
         menu.setOnClickListener {
             matchResultDialog.dismiss()
@@ -327,42 +314,17 @@ class MatchFragment : BaseFragment() {
 
     private fun userMove(wordSequenceInput:String){
 
+        val userMoveBundle = Bundle().apply {
+            putString(Constants.USER_MOVE_BUNDLE, wordSequenceInput)
+        }
         val userMove = Message.obtain(
-            null,Constants.MESSAGE_USER_MOVE,wordSequenceInput,
+            null, Constants.MESSAGE_USER_MOVE, 0,0,userMoveBundle
         )
         userMove.replyTo = messenger
         botService?.send(userMove)
         botsTurnView()
     }
 
-    inner class BotActionBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            userTurnView()
-
-            val currentWordSequence = intent?.getStringExtra(Constants.MOVE) ?: ""
-
-
-            this@MatchFragment.currentWordSequence = currentWordSequence
-
-            if(currentWordSequence == Constants.TOO_MUCH_FOR_ME){
-                val matchResult = MatchResult.UserWon
-                matchResultDialogInit(matchResult)
-                matchResultDialog.show()
-            }else{
-                val words = if(currentWordSequence.isNotEmpty())
-                    currentWordSequence.split(" ")
-                else mutableListOf()
-
-                words.forEachIndexed { index, s ->
-                    showCustomToast(index + 1,s)
-                    if(index == words.size - 1)
-                        matchViewModel.lastMove.value = LastMove(Player.BOT,words.last())
-                }
-            }
-        }
-
-    }
 
     private fun botsTurnView(){
 
@@ -380,30 +342,25 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun endBotService(){
-        val endBotServiceIntent = matchViewModel.interactors.endBotServiceIntent(
-            Constants.ACTION_STOP_BOT_SERVICE
-        )
-        activity?.sendBroadcast(endBotServiceIntent)
+        if (bound) {
+            context?.unbindService(botServiceConnection)
+            bound = false
+        }
     }
     private fun startBotService(){
-        val startBotServiceIntent = matchViewModel.interactors.startBotServiceIntent(
-            Constants.ACTION_START_BOT_SERVICE
-        )
-        activity?.sendBroadcast(startBotServiceIntent)
-    }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
+        Intent().also { intent ->
+            intent.setClassName(
+                Constants.BOT_SERVICE_PACKAGE_NAME,
+                Constants.BOT_SERVICE_CLASS_NAME
+            )
+            context?.bindService(intent, botServiceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        activity?.unregisterReceiver(userBroadcastReceiver)
+        endBotService()
     }
 
     private fun botHasPlayedCallBack(move:String){
@@ -449,7 +406,10 @@ class MatchFragment : BaseFragment() {
 
         override fun handleMessage(msg: Message) {
             when(msg.what){
-                Constants.MESSAGE_BOT_MOVE -> botHasPlayedCallBack((msg.obj as String))
+                Constants.MESSAGE_BOT_MOVE -> {
+                    val botMove = (msg.obj as Bundle).getString(Constants.BOT_MOVE_BUNDLE) ?: ""
+                    botHasPlayedCallBack(botMove)
+                }
                 else -> super.handleMessage(msg)
             }
         }

@@ -6,7 +6,7 @@ import dagger.Component;
 import ru.terrakok.cicerone.Router;
 
 @Component(
-        modules = [BotServiceProviderModule::class,RouterModule::class]
+        modules = [RouterModule::class]
 )
 interface WelcomeFragmentComponent {
 

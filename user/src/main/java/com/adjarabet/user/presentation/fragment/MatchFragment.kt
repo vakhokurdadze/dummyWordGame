@@ -18,6 +18,7 @@ import com.adjarabet.user.*
 import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
 import com.adjarabet.user.model.LostReason
 import com.adjarabet.user.model.MatchResult
+import com.adjarabet.user.presentation.CustomDialogProvider
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
@@ -53,7 +54,6 @@ class MatchFragment : BaseFragment() {
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
 
         DaggerMatchFragmentComponent.factory().create().inject(this)
-
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -163,39 +163,16 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun exitMatchDialogInit() {
-
-        val exitMatchDialogView = viewInflater.inflate(
-            R.layout.match_exit_dialog,
-            null
+        exitMatchDialog = CustomDialogProvider.createExitMatchDialog(
+            requireContext(),
+            this::exitMatch,
         )
-
-        val dialogBuilder = AlertDialog.Builder(context).setView(exitMatchDialogView)
-
-        this.exitMatchDialog = dialogBuilder.create()
-
-        val exitMatch = exitMatchDialogView.findViewById<TextView>(R.id.positive)
-        val keepPlaying = exitMatchDialogView.findViewById<TextView>(R.id.negative)
-
-
-        keepPlaying.setOnClickListener {
-            exitMatchDialog.dismiss()
-        }
-        exitMatch.setOnClickListener {
-            exitMatchDialog.dismiss()
-            endBotService()
-            parentFragmentManager.popBackStack()
-        }
-
         exitMatchDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
 
-        exitMatchDialog.setOnKeyListener { v, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-                endBotService()
-                parentFragmentManager.popBackStack()
-            }
-            return@setOnKeyListener false
-        }
-
+    private fun exitMatch(){
+        endBotService()
+        parentFragmentManager.popBackStack()
     }
 
     private fun matchHasEnded() {
@@ -207,62 +184,29 @@ class MatchFragment : BaseFragment() {
     private fun matchResultDialogInit(matchResult: MatchResult) {
 
         matchHasEnded()
-        val matchResultDialogView = viewInflater.inflate(
-            R.layout.match_result_dialog,
-            null
+
+        this.matchResultDialog = CustomDialogProvider.createMatchResultDialog(
+            requireContext(), matchResult, this::rematch, this::goToMenu, this::goBack
         )
-
-        val dialogBuilder = AlertDialog.Builder(context).setView(matchResultDialogView)
-
-        this.matchResultDialog = dialogBuilder.create()
-
-        val menu = matchResultDialogView.findViewById<TextView>(R.id.menu)
-        val rematch = matchResultDialogView.findViewById<TextView>(R.id.rematch)
-
-        if (matchResult is MatchResult.UserLost) {
-            matchResultDialogView.matchResultHeader.text =
-                resources.getString(com.adjarabet.basemodule.R.string.botWon)
-
-            matchResultDialogView.matchResultDescription.text = when (matchResult.reason) {
-                LostReason.IMPROPER_WORD_NUMBER -> {
-                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
-                }
-                LostReason.NO_MATCHING -> {
-                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.no_matching)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
-
-                }
-                else -> {
-                    "${resources.getString(R.string.lostReason)} ${resources.getString(R.string.duplicate_words)}.\n\nYour words : ${matchResult.userWordSequence}\nExpected words : ${matchResult.properWordSequence} {additional word}\n"
-                }
-            }
-        } else {
-            matchResultDialogView.matchResultDescription.text =
-                "${resources.getString(R.string.too_much_for_bot)}"
-            matchResultDialogView.matchResultHeader.text =
-                resources.getString(com.adjarabet.basemodule.R.string.userWon)
-        }
         matchResultDialog.setCanceledOnTouchOutside(false)
-
-
-        rematch.setOnClickListener {
-            matchResultDialog.dismiss()
-            matchView.wordSequenceInput.text?.clear()
-            startBotService()
-        }
-        menu.setOnClickListener {
-            matchResultDialog.dismiss()
-            parentFragmentManager.popBackStack()
-        }
-
         matchResultDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        matchResultDialog.setOnKeyListener { v, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-                endBotService()
-                parentFragmentManager.popBackStack()
-            }
-            return@setOnKeyListener false
-        }
+    }
+
+    private fun rematch(){
+        matchResultDialog.dismiss()
+        matchView.wordSequenceInput.text?.clear()
+        startBotService()
+    }
+
+    private fun goToMenu(){
+        matchResultDialog.dismiss()
+        parentFragmentManager.popBackStack()
+    }
+
+    private fun goBack(){
+        endBotService()
+        parentFragmentManager.popBackStack()
     }
 
     private fun botsTurnView() {
@@ -334,5 +278,4 @@ class MatchFragment : BaseFragment() {
             }
         }
     }
-
 }

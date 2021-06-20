@@ -21,6 +21,6 @@ project specifications:
 
 The Project is written in kotlin programming language
 For the navigation system cicerone's router is used
-Constructed in MVVM architectural pattern with clean architecture elements
+Constructed in MVVM architectural pattern
 For dependency injections the dagger 2 library is used
 

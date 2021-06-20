@@ -19,6 +19,7 @@ class BotService : Service() {
         private val userHasPlayedCallBack: (move: String, messenger: Messenger) -> Unit
     ) : Handler(Looper.getMainLooper()) {
 
+        //receiving moves(messages) played by user
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 Constants.MESSAGE_USER_MOVE -> {
@@ -35,6 +36,7 @@ class BotService : Service() {
     private fun userHasPlayedCallBack(move: String, messenger: Messenger) {
 
         CoroutineScope(Dispatchers.IO).launch {
+            //using delay to create imitation of bot thinking on its move
             delay(500)
             withContext(Dispatchers.Main) {
                 val botMove = obtainBotMove(move)

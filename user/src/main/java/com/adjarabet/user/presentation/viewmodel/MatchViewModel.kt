@@ -119,6 +119,7 @@ class MatchViewModel @Inject constructor() : ViewModel() {
                 move.split(" ")
             else mutableListOf()
 
+            //showing bot words consequently to the user using toasts
             words.forEachIndexed { index, s ->
                 _toastPopUp.value = BotMoveToast(index + 1, s)
                 if (index == words.size - 1)

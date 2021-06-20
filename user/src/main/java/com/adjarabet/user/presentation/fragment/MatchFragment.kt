@@ -53,6 +53,7 @@ class MatchFragment : BaseFragment() {
 
         viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
+
         toolBarConfig()
         startBotService()
 
@@ -249,6 +250,7 @@ class MatchFragment : BaseFragment() {
         matchViewModel.botHasPlayed(move)
     }
 
+
     private fun showCustomToast(index: Int, word: String) {
         if (::viewInflater.isInitialized && context != null) {
             val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast, null)
@@ -264,6 +266,8 @@ class MatchFragment : BaseFragment() {
     class IncomingHandler(private val botHasPlayedCallBack: (String) -> Unit) :
         Handler(Looper.getMainLooper()) {
 
+
+        //receiving moves(messages) played by bot
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 Constants.MESSAGE_BOT_MOVE -> {

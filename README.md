@@ -1,7 +1,7 @@
 # dummyWordGame
-kotlin , dummy word game (user + bot)
+kotlin, dummy word game (user + bot)
 
-Regarding the game:
+**Regarding the game:**
 
 Dummy Word Application is a simple, funny game, through which you try to 
 beat the robot by memorizing as many words as possible. The robot seems 
@@ -22,7 +22,7 @@ of the options. As soon as one of the players loses the game the dialog pops up
 which says information regarding the winner and match details and suggests whether 
 you want to play again or go to the welcome page. Enjoy the game!
 
-project specifications:
+**Project specifications:**
 
 The Project is written in kotlin programming language and constructed in MVVM 
 architectural pattern. For the navigation system, the cicerone's router is used. 

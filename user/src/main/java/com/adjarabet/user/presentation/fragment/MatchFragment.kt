@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.*
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
@@ -18,6 +17,7 @@ import com.adjarabet.user.dagger.DaggerMatchFragmentComponent
 import com.adjarabet.user.model.MatchResult
 import com.adjarabet.user.presentation.CustomDialogProvider
 import com.adjarabet.user.presentation.MoveRecyclerAdapter
+import com.adjarabet.user.presentation.showCustomToast
 import com.adjarabet.user.presentation.viewmodel.MatchViewModel
 import kotlinx.android.synthetic.main.fragment_match.view.*
 import kotlinx.android.synthetic.main.word_sequence_toast.view.*
@@ -28,7 +28,6 @@ import javax.inject.Inject
 class MatchFragment : BaseFragment() {
 
     private lateinit var matchView: View
-    private lateinit var viewInflater: LayoutInflater
     private lateinit var exitMatchDialog: AlertDialog
     private lateinit var matchResultDialog: AlertDialog
     private var botService: Messenger? = null
@@ -46,13 +45,9 @@ class MatchFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         matchView = inflater.inflate(R.layout.fragment_match, container, false)
 
         DaggerMatchFragmentComponent.factory().create().inject(this)
-
-        viewInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
 
         toolBarConfig()
         startBotService()
@@ -105,9 +100,8 @@ class MatchFragment : BaseFragment() {
         })
 
         matchViewModel.toastPopUp.observe(viewLifecycleOwner, Observer {
-            showCustomToast(it.index, it.word)
+            showCustomToast("${it.index}. ${it.word}")
         })
-
 
         matchView.play.setOnClickListener {
             val wordSequenceInput = matchView.wordSequenceInput.text.toString()
@@ -132,7 +126,6 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun toolBarConfig() {
-
         val toolbar: Toolbar = matchView.matchToolBar
         val supportActionBar = (requireActivity() as AppCompatActivity)
 
@@ -179,7 +172,6 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun matchResultDialogInit(matchResult: MatchResult) {
-
         matchHasEnded()
 
         this.matchResultDialog = CustomDialogProvider.createMatchResultDialog(
@@ -207,19 +199,22 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun botsTurnView() {
-
-        matchView.botThinkingLoader.visibility = View.VISIBLE
-        matchView.botTurnIndicator.visibility = View.VISIBLE
-        matchView.userTurnIndicator.visibility = View.INVISIBLE
-        matchView.play.isEnabled = false
-        matchView.wordSequenceInput.text?.clear()
+        matchView.apply {
+            botThinkingLoader.visibility = View.VISIBLE
+            botTurnIndicator.visibility = View.VISIBLE
+            userTurnIndicator.visibility = View.INVISIBLE
+            play.isEnabled = false
+            wordSequenceInput.text?.clear()
+        }
     }
 
     private fun userTurnView() {
-        matchView.botThinkingLoader.visibility = View.INVISIBLE
-        matchView.botTurnIndicator.visibility = View.INVISIBLE
-        matchView.userTurnIndicator.visibility = View.VISIBLE
-        matchView.play.isEnabled = true
+        matchView.apply {
+            botThinkingLoader.visibility = View.INVISIBLE
+            botTurnIndicator.visibility = View.INVISIBLE
+            userTurnIndicator.visibility = View.VISIBLE
+            play.isEnabled = true
+        }
     }
 
     private fun endBotService() {
@@ -230,7 +225,6 @@ class MatchFragment : BaseFragment() {
     }
 
     private fun startBotService() {
-
         Intent().also { intent ->
             intent.setClassName(
                 Constants.BOT_SERVICE_PACKAGE_NAME,
@@ -250,22 +244,8 @@ class MatchFragment : BaseFragment() {
         matchViewModel.botHasPlayed(move)
     }
 
-
-    private fun showCustomToast(index: Int, word: String) {
-        if (::viewInflater.isInitialized && context != null) {
-            val customWordSequenceToast = viewInflater.inflate(R.layout.word_sequence_toast, null)
-            val toast = Toast(context)
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, -580)
-            toast.duration = Toast.LENGTH_SHORT
-            toast.view = customWordSequenceToast
-            toast.show()
-            customWordSequenceToast.toastText.text = "$index. $word"
-        }
-    }
-
     class IncomingHandler(private val botHasPlayedCallBack: (String) -> Unit) :
         Handler(Looper.getMainLooper()) {
-
 
         //receiving moves(messages) played by bot
         override fun handleMessage(msg: Message) {

@@ -18,7 +18,6 @@ object CustomDialogProvider {
         context: Context,
         exitMatchCallBack: () -> Unit,
     ): AlertDialog {
-
         val exitMatchDialogView = LayoutInflater.from(context).inflate(
             R.layout.match_exit_dialog,
             null
@@ -26,10 +25,8 @@ object CustomDialogProvider {
 
         val exitMatchDialog = AlertDialog.Builder(context).setView(exitMatchDialogView).create()
 
-
         val exitMatch = exitMatchDialogView.findViewById<TextView>(R.id.positive)
         val keepPlaying = exitMatchDialogView.findViewById<TextView>(R.id.negative)
-
 
         keepPlaying.setOnClickListener {
             exitMatchDialog.dismiss()
@@ -57,14 +54,12 @@ object CustomDialogProvider {
         goToMenu: () -> Unit,
         goBack: () -> Unit,
     ): AlertDialog {
-
         val matchResultDialogView = LayoutInflater.from(context).inflate(
             R.layout.match_result_dialog,
             null
         )
 
         val dialogBuilder = AlertDialog.Builder(context).setView(matchResultDialogView)
-
 
         val menu = matchResultDialogView.findViewById<TextView>(R.id.menu)
         val rematch = matchResultDialogView.findViewById<TextView>(R.id.rematch)
@@ -110,8 +105,10 @@ object CustomDialogProvider {
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                 goBack()
             }
+
             return@setOnKeyListener false
         }
+
         return dialogBuilder.create()
     }
 }

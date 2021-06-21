@@ -12,35 +12,30 @@ import javax.inject.Inject
 
 class MatchViewModel @Inject constructor() : ViewModel() {
 
-    val _lastMove = MutableLiveData<LastMove>()
+    private val _lastMove = MutableLiveData<LastMove>()
     val lastMove: LiveData<LastMove> get() = _lastMove
 
-    var _expectedWordSequence = ""
+    private var expectedWordSequence = ""
 
-    val _matchResult = SingleLiveEvent<MatchResult>()
+    private val _matchResult = SingleLiveEvent<MatchResult>()
     val matchResult: LiveData<MatchResult> get() = _matchResult
 
-    val _userMove = SingleLiveEvent<String>()
+    private val _userMove = SingleLiveEvent<String>()
     val userMove: LiveData<String> get() = _userMove
 
-    val _messagePopUp = SingleLiveEvent<SnackBarMessage>()
+    private val _messagePopUp = SingleLiveEvent<SnackBarMessage>()
     val messagePopUp: LiveData<SnackBarMessage> get() = _messagePopUp
 
-    val _toastPopUp = SingleLiveEvent<BotMoveToast>()
+    private val _toastPopUp = SingleLiveEvent<BotMoveToast>()
     val toastPopUp: LiveData<BotMoveToast> get() = _toastPopUp
-
-    init {
-        _expectedWordSequence = ""
-    }
 
 
     fun clearExpectedWordSequence() {
-        _expectedWordSequence = ""
+        expectedWordSequence = ""
     }
 
     fun play(wordSequenceInput: String) {
-
-        val currentWordSequence = _expectedWordSequence
+        val currentWordSequence = expectedWordSequence
         val inputWordList = if (wordSequenceInput.isNotEmpty())
             wordSequenceInput.split(" ") else mutableListOf()
         val currentSequenceWordList = if (currentWordSequence.isNotEmpty())
@@ -55,7 +50,7 @@ class MatchViewModel @Inject constructor() : ViewModel() {
             _userMove.value = wordSequenceInput
             _lastMove.value = LastMove(Player.USER, inputWordList.last())
 
-            _expectedWordSequence = wordSequenceInput
+            expectedWordSequence = wordSequenceInput
             return
         } else if (currentWordSequence.isEmpty() && inputWordList.size > 1) {
             _messagePopUp.value = SnackBarMessage(
@@ -69,7 +64,7 @@ class MatchViewModel @Inject constructor() : ViewModel() {
         ) {
             _userMove.value = wordSequenceInput
             _lastMove.value = LastMove(Player.USER, inputWordList.last())
-            _expectedWordSequence = wordSequenceInput
+            expectedWordSequence = wordSequenceInput
         } else if (wordSequenceInput.isEmpty()) {
             _messagePopUp.value = SnackBarMessage(
                 R.string.error, R.string.emptyInputError
@@ -94,7 +89,6 @@ class MatchViewModel @Inject constructor() : ViewModel() {
 
 
     fun initMatch(whoStartsBundle: String?) {
-
         val whoStarts = if (whoStartsBundle != null && whoStartsBundle.isNotEmpty())
             Player.valueOf(whoStartsBundle)
         else Player.USER
@@ -109,8 +103,7 @@ class MatchViewModel @Inject constructor() : ViewModel() {
 
 
     fun botHasPlayed(move: String) {
-
-        _expectedWordSequence = move
+        expectedWordSequence = move
 
         if (move == Constants.TOO_MUCH_FOR_ME) {
             _matchResult.value = MatchResult.UserWon

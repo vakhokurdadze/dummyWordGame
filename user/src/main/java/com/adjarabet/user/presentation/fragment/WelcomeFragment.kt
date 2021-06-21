@@ -32,9 +32,7 @@ class WelcomeFragment : Fragment() {
     ): View {
         welcomeView = inflater.inflate(R.layout.fragment_welcome, container, false)
 
-
         DaggerWelcomeFragmentComponent.factory().create().inject(this)
-
 
         welcomeView.start.setOnClickListener {
 

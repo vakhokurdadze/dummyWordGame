@@ -34,7 +34,6 @@ class BotService : Service() {
     }
 
     private fun userHasPlayedCallBack(move: String, messenger: Messenger) {
-
         CoroutineScope(Dispatchers.IO).launch {
             //using delay to create imitation of bot thinking on its move
             delay(500)
@@ -54,7 +53,6 @@ class BotService : Service() {
 
 
     fun obtainBotMove(userCurrentMove: String): String {
-
         val randomWordLengthRange: Int = (1..5).random()
         val randomNumberInRange = (1..100).random()
 

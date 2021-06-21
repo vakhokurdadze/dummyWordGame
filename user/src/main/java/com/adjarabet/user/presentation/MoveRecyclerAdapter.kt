@@ -21,7 +21,7 @@ class MoveRecyclerAdapter(val lastMoveBy: Player, val lastMove: String) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
+        val inflater = parent.context.inflater
         return if (viewType == HEADER_VIEW) MoveHeaderViewHolder(
             inflater.inflate(R.layout.move_header_item, parent, false)
         ) else MoveViewHolder(inflater.inflate(R.layout.player_move_item, parent, false))
@@ -42,7 +42,6 @@ class MoveRecyclerAdapter(val lastMoveBy: Player, val lastMove: String) :
     override fun getItemCount(): Int {
         return 3
     }
-
 
     class MoveHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
